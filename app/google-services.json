@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "200876701023",
+    "project_id": "tfg---healthpoint---alejandro",
+    "storage_bucket": "tfg---healthpoint---alejandro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200876701023:android:2499063dd8398dfd92f2ea",
+        "android_client_info": {
+          "package_name": "com.example.healthpoint_tfg_alejandrocolcherodefinitivo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeW_nJ9rFHW6_Enrh1oLZ9ZFZ5OED6Dzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
