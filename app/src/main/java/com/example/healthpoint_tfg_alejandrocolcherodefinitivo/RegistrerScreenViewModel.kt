@@ -19,7 +19,7 @@ class RegistrerScreenViewModel: ViewModel() {
         email: String,
         telefono: String,
         password: String,
-        role: String, // Paciente o Medico
+        role: String,
         fechaNacimiento: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
@@ -42,11 +42,10 @@ class RegistrerScreenViewModel: ViewModel() {
                     )
 
                     // Guardamos en la coleccion "Usuario"
-
                     db.collection("Usuario").document(uid).set(user)
                         .addOnSuccessListener {
                             if(role == "Medico") {
-                                // Si es medico, tambien se crea un documento en "Medico"
+                                // Si es medico, se guarda en la coleccion de "Medico"
                                 val medico = hashMapOf(
                                     "Id_Medico" to uid,
                                     "nombre" to nombre,
@@ -56,6 +55,7 @@ class RegistrerScreenViewModel: ViewModel() {
                                     "numColegiado" to "",
                                     "horario" to ""
                                 )
+
                                 db.collection("Medico").document(uid).set(medico)
                                     .addOnSuccessListener {
                                         isLoading.value = false
@@ -66,7 +66,7 @@ class RegistrerScreenViewModel: ViewModel() {
                                         onError(e.message ?: "Error al guardar el médico")
                                     }
                             } else {
-                                // Si es paciente, solo se guarda en usuario
+                                // Si es paciente, se guarda en la coleccion de "Paciente"
                                 isLoading.value = false
                                 onSuccess()
                             }

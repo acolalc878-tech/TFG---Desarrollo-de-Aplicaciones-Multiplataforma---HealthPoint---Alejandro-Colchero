@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.theme.HealthPointTFGALEJANDROCOLCHERODEFINITIVOTheme
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HealthPointTFGALEJANDROCOLCHERODEFINITIVOTheme {
+
                 var currentScreen by remember { mutableStateOf("splash") }
 
                 when (currentScreen) {

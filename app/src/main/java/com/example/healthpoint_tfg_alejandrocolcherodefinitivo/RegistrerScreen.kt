@@ -34,13 +34,21 @@ fun RegistrerScreen(
     viewModel: RegistrerScreenViewModel = viewModel(),
     onRegisterSuccess: () -> Unit = {}
 ) {
+
+    var role by remember { mutableStateOf("Paciente") }
+
     var nombre by remember { mutableStateOf("") }
     var apellidos by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var fechaNacimiento by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("Paciente") }
+
+    // Campos exclusivos del Médico
+    var numColegiado by remember { mutableStateOf("") }
+    var especialidad by remember { mutableStateOf("") }
+    var horario by remember { mutableStateOf("") }
+
     var errorMessage by remember { mutableStateOf("") }
 
     Box(
@@ -59,6 +67,7 @@ fun RegistrerScreen(
 
             Spacer(modifier= Modifier.height(16.dp))
 
+            // Campos comunes
             // Campo para el nombre
             OutlinedTextField(
                 value = nombre,
@@ -121,7 +130,7 @@ fun RegistrerScreen(
             Spacer(modifier= Modifier.height(8.dp))
 
 
-            // Seleccion de rol
+            // Seleccion de rol: Botones de rol
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -149,6 +158,16 @@ fun RegistrerScreen(
 
             Spacer(modifier= Modifier.height(24.dp))
 
+            // Campos específicos para los médicos
+            if (role == "Medico") {
+                OutlinedTextField(value = numColegiado, onValueChange = { numColegiado = it }, label = { Text("Número Colegiado") })
+                OutlinedTextField(value = especialidad, onValueChange = { especialidad = it }, label = { Text("Especialidad") })
+                OutlinedTextField(value = horario, onValueChange = { horario = it }, label = { Text("Horario") })
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // Mensaje de error
             if (errorMessage.isNotEmpty()) {
                 Text(errorMessage, color = Color.Red)
                 Spacer(modifier= Modifier.height(8.dp))
@@ -158,7 +177,14 @@ fun RegistrerScreen(
             Button(
                 onClick = {
                     viewModel.registrerUser(
-                        nombre, apellidos, email, telefono, password, fechaNacimiento, role, onSuccess = { onRegisterSuccess() },
+                        nombre = nombre,
+                        apellidos = apellidos,
+                        email = email,
+                        telefono = telefono,
+                        password = password,
+                        role = role,
+                        fechaNacimiento = fechaNacimiento,
+                        onSuccess = { onRegisterSuccess() },
                         onError = { errorMessage = it }
                     )
                 },
@@ -171,6 +197,7 @@ fun RegistrerScreen(
                 Text("Registrate", color = Color.White)
             }
 
+            // Circulo de carga
             if(viewModel.isLoading.value) {
                 Spacer(modifier = Modifier.height(16.dp))
                 CircularProgressIndicator()

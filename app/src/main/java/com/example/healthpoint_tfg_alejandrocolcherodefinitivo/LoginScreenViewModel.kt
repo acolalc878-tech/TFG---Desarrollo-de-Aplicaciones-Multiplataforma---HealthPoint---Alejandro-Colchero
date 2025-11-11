@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 
 class LoginScreenViewModel: ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
     private val _loading = MutableLiveData(false)
     val selectedRole = MutableLiveData("Paciente") // Medico o Paciente
 
@@ -16,7 +17,10 @@ class LoginScreenViewModel: ViewModel() {
         selectedRole.value = role
     }
 
-    fun signInWithEmailAndPassword(email: String, password: String, home: () -> Unit) =
+    fun signInWithEmailAndPassword(
+        email: String,
+        password: String,
+        home: () -> Unit) =
         viewModelScope.launch {
             try {
                 _loading.value = true

@@ -42,6 +42,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Nombre de la app
             Text(
                 text = "HealthPoint",
                 style = MaterialTheme.typography.headlineMedium,
