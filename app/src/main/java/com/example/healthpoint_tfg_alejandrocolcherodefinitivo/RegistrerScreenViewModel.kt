@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.type.Date
+
 
 class RegistrerScreenViewModel: ViewModel() {
 
@@ -13,82 +13,121 @@ class RegistrerScreenViewModel: ViewModel() {
 
     val isLoading = mutableStateOf(false)
 
-    fun registrerUser(
+    // Función auxiliar para eliminar datos si el guardado secundario falla
+    private fun deleteInconsistentUserData(userId: String) {
+        // Elimina la cuenta de Firebase Authentication
+        auth.currentUser?.delete()
+        // Elimina el documento ya creado en la colección 'Usuario'
+        db.collection("Usuario").document(userId).delete()
+    }
+
+    fun registerUser(
         nombre: String,
         apellidos: String,
         email: String,
         telefono: String,
         password: String,
-        role: String,
+        role: String, // Paciente o Medico
         fechaNacimiento: String,
+        especialidad: String = "",
+        numColegiado: String = "",
+        horario: String = "",
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        isLoading.value = true
 
-        auth.createUserWithEmailAndPassword(email, password)
+        isLoading.value = true
+        val cleanedEmail = email.trim()
+
+        auth.createUserWithEmailAndPassword(cleanedEmail, password)
             .addOnCompleteListener { task ->
+
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid ?: ""
+                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener run {
+                        isLoading.value = false
+                        onError("No se pudo obtener el UID del usuario")
+                    }
+
+                    // Asegúrate de NO guardar la contraseña en Firestore
                     val user = hashMapOf(
-                        "Id_usuario" to uid,
+                        "Id_usuario" to userId,
                         "nombre" to nombre,
                         "apellidos" to apellidos,
-                        "email" to email,
+                        "email" to cleanedEmail, // Usamos el email limpio
                         "telefono" to telefono,
-                        "contraseña" to password,
                         "rol" to role,
                         "fechaNacimiento" to fechaNacimiento
                     )
 
-                    // Guardamos en la coleccion "Usuario"
-                    db.collection("Usuario").document(uid).set(user)
+                    // 2. Primer Guardado: Colección "Usuario" (Siempre)
+                    db.collection("Usuario").document(userId).set(user)
                         .addOnSuccessListener {
+                            // 3. Segundo Guardado: Colección específica (Condicional)
                             if(role == "Medico") {
-                                // Si es medico, se guarda en la coleccion de "Medico"
+                                // Guardar en "Medico"
                                 val medico = hashMapOf(
-                                    "Id_Medico" to uid,
+                                    "Id_Medico" to userId,
                                     "nombre" to nombre,
                                     "apellidos" to apellidos,
-                                    "Id_usuario" to uid,
-                                    "especialidad" to "",
-                                    "numColegiado" to "",
-                                    "horario" to ""
+                                    "Id_usuario" to userId,
+                                    "especialidad" to especialidad,
+                                    "numColegiado" to numColegiado,
+                                    "horario" to horario
                                 )
-
-                                db.collection("Medico").document(uid).set(medico)
+                                db.collection("Medico").document(userId).set(medico)
                                     .addOnSuccessListener {
                                         isLoading.value = false
-                                        onSuccess()
+                                        onSuccess() // Éxito en ambas colecciones
+                                    }
+
+                                    .addOnFailureListener { e ->
+                                        // Falló en Medico. Limpiar datos inconsistentes.
+                                        deleteInconsistentUserData(userId)
+                                        isLoading.value = false
+                                        onError(e.message ?: "Error al guardar los datos de Medico")
+                                    }
+
+                            } else if (role == "Paciente") {
+                                // ¡Lógica de Paciente AÑADIDA correctamente!
+                                // Usa el mismo formato de datos que el documento 'Usuario'
+                                val paciente = hashMapOf(
+                                    "Id_Paciente" to userId,
+                                    "nombre" to nombre,
+                                    "apellidos" to apellidos,
+                                    "Id_usuario" to userId,
+                                    "email" to cleanedEmail,
+                                    "rol" to role,
+                                    "telefono" to telefono,
+                                    "fechaNacimiento" to fechaNacimiento
+                                )
+                                db.collection("Paciente").document(userId).set(paciente)
+                                    .addOnSuccessListener {
+                                        isLoading.value = false
+                                        onSuccess() // Éxito en ambas colecciones
                                     }
                                     .addOnFailureListener { e ->
+                                        // Falló en Paciente. Limpiar datos inconsistentes.
+                                        deleteInconsistentUserData(userId)
                                         isLoading.value = false
-                                        onError(e.message ?: "Error al guardar el médico")
+                                        onError(e.message ?: "Error al guardar los datos de Paciente")
                                     }
                             } else {
-                                // Si es paciente, se guarda en la coleccion de "Paciente"
+                                // Rol desconocido (solo guardado en Usuario)
                                 isLoading.value = false
                                 onSuccess()
                             }
                         }
-                        .addOnFailureListener { e ->
-                            isLoading.value = false
-                            onError(e.message ?: "Error desconocido")
-                        }
 
-                    val collection = if (role == "Paciente") "Pacientes" else "Medicos"
-                    db.collection(collection).document(uid).set(user)
-                        .addOnSuccessListener {
-                            isLoading.value = false
-                            onSuccess()
-                        }
                         .addOnFailureListener { e ->
+                            // Falló la escritura en Usuario. Limpiar solo Auth.
+                            auth.currentUser?.delete()
                             isLoading.value = false
-                            onError(e.message ?: "Error al guardar en la base de datos")
+                            onError(e.message ?: "Error al guardar en la colección Usuario")
                         }
                 } else {
                     isLoading.value = false
-                    onError(task.exception?.message ?: "Error desconocido")
+                    // Error de autenticación (contraseña débil, email ya existe, o mal formato)
+                    onError(task.exception?.message ?: "Error al crear usuario de autenticación")
                 }
             }
     }

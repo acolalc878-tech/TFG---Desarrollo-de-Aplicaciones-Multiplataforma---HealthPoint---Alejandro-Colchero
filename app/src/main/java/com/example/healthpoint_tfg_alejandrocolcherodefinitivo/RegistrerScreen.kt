@@ -160,9 +160,31 @@ fun RegistrerScreen(
 
             // Campos específicos para los médicos
             if (role == "Medico") {
-                OutlinedTextField(value = numColegiado, onValueChange = { numColegiado = it }, label = { Text("Número Colegiado") })
-                OutlinedTextField(value = especialidad, onValueChange = { especialidad = it }, label = { Text("Especialidad") })
-                OutlinedTextField(value = horario, onValueChange = { horario = it }, label = { Text("Horario") })
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = especialidad,
+                    onValueChange = { especialidad = it },
+                    label = { Text("Especialidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(value = numColegiado,
+                    onValueChange = { numColegiado = it },
+                    label = { Text("Numero de Colegiado") },
+                    modifier = Modifier.fillMaxWidth()
+                    )
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(value = horario,
+                    onValueChange = { horario = it },
+                    label = { Text("Horario (ej: L-V 9:00-17:00)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Spacer(Modifier.height(24.dp))
@@ -176,7 +198,17 @@ fun RegistrerScreen(
             // Boton para crear la cuenta
             Button(
                 onClick = {
-                    viewModel.registrerUser(
+
+                    // Hacemos una limpieza de los espacios en blanco del email para evitar errores
+                    val limpiarEmail = email.trim()
+
+                    if (limpiarEmail.isBlank() || password.isBlank()) {
+                        errorMessage = "El correo y la contraseña son obligatorios"
+                        return@Button
+                    }
+
+                    viewModel.registerUser(
+                        // Parametros de usuario / paciente
                         nombre = nombre,
                         apellidos = apellidos,
                         email = email,
@@ -184,6 +216,12 @@ fun RegistrerScreen(
                         password = password,
                         role = role,
                         fechaNacimiento = fechaNacimiento,
+
+                        // Parametros de medico
+                        especialidad = especialidad,
+                        numColegiado = numColegiado,
+                        horario = horario,
+
                         onSuccess = { onRegisterSuccess() },
                         onError = { errorMessage = it }
                     )
