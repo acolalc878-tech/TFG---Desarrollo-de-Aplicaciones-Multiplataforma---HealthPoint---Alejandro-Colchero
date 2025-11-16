@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeMedicoScreen(onLogout: () -> Unit) {
+fun HomeMedicoScreen(onLogout: () -> Unit, onVerCita: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,8 +48,7 @@ fun HomeMedicoScreen(onLogout: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Botón 1
-            Button(
-                onClick = { /* navegar a citas */ },
+            Button( onClick = onVerCita,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Ver mis citas")

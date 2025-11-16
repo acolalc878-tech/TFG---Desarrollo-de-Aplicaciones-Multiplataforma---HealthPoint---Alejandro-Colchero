@@ -32,7 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun RegistrerScreen(
     viewModel: RegistrerScreenViewModel = viewModel(),
-    onRegisterSuccess: () -> Unit = {}
+    onRegisterSuccess: (userTipo: String) -> Unit = {}
 ) {
 
     var role by remember { mutableStateOf("Paciente") }
@@ -222,7 +222,7 @@ fun RegistrerScreen(
                         numColegiado = numColegiado,
                         horario = horario,
 
-                        onSuccess = { onRegisterSuccess() },
+                        onSuccess = { onRegisterSuccess(role) },
                         onError = { errorMessage = it }
                     )
                 },
