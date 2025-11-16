@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(onTimeout: () -> Unit){
+fun SplashScreen(onFinished: () -> Unit){
     // Animacion de fade-in / fade-out del logotipo
     val logo = remember {Animatable(0f) }
 
@@ -43,7 +43,7 @@ fun SplashScreen(onTimeout: () -> Unit){
         )
 
         // Notificar que el splash terminó
-        onTimeout()
+        onFinished()
     }
 
     Box(

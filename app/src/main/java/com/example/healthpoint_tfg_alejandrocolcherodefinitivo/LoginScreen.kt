@@ -22,7 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 @Composable
 fun LoginScreen(
     viewModel: LoginScreenViewModel = viewModel(),
-    onLoginSuccess: () -> Unit = {},
+    onLoginSuccess: (Any?) -> Unit = {},
     onCreateAccountClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
@@ -117,7 +117,14 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.signInWithEmailAndPassword(
-                        email, password, onLoginSuccess
+                        email = email,
+                        password = password,
+                        onLoginSuccess = { role ->
+                            onLoginSuccess(role) // Navegamos segun el rol del usuario
+                        },
+                        onError = { msg ->
+                            errorMessage = msg
+                        }
                     )
                 },
                 modifier = Modifier
