@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class CitasPacienteViewModel: ViewModel(){
+class CitasPacienteViewModel: ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -20,18 +20,31 @@ class CitasPacienteViewModel: ViewModel(){
     val loading = _loading
 
     private val _error = MutableStateFlow<String?>(null)
-    val error =_error
+    val error = _error
 
-    fun cargarCitaPacientes(){
-
-        val userId = auth.currentUser?.uid?: return
-
+    fun cargarCitasPorUsuario(idUsuarioModelo: String? = null) {
         viewModelScope.launch {
-            try{
+            try {
                 _loading.value = true
 
+                val idUsuario = idUsuarioModelo ?: run {
+                    // Resolucion por email
+                    val email = auth.currentUser?.email ?: return@launch
+                    val snapshot = db.collection("Usuario")
+                        .whereEqualTo("email", email)
+                        .get()
+                        .await()
+
+                    if (snapshot.isEmpty) {
+                        _error.value = "Este usuario no se encontró en la base de datos"
+                        _loading.value = false
+                        return@launch
+                    }
+                    snapshot.documents[0].getString("Id_usuario") ?: ""
+                }
+
                 val result = db.collection("citas")
-                    .whereEqualTo("id_usuario", userId)
+                    .whereEqualTo("id_usuario", idUsuario)
                     .get()
                     .await()
 
@@ -39,10 +52,10 @@ class CitasPacienteViewModel: ViewModel(){
                     //Si un campo esta mal, no crashea
                     try {
                         Cita(
-                            id = doc.id,
-                            id_usuario = doc.getString("id_usuario") ?: "",
-                            id_medico = doc.getString("id_medico") ?: "",
-                            id_centroMedico = doc.getString("id_centroMedico") ?: "",
+                            Id_Cita = doc.id,
+                            Id_usuario = doc.getString("id_usuario") ?: "",
+                            Id_medico = doc.getString("id_medico") ?: "",
+                            Id_centroMedico = doc.getString("id_centroMedico") ?: "",
                             fecha = doc.getString("fecha") ?: "",
                             hora = doc.getString("hora") ?: "",
                             motivo = doc.getString("motivo") ?: "",
@@ -53,13 +66,14 @@ class CitasPacienteViewModel: ViewModel(){
                         null
                     }
                 }
+
                 _citas.value = lista
 
-                    } catch(e:Exception) {
-                        _error.value = "Error al cargar las citas ${e.message}"
-                    } finally {
-                        _loading.value = false
-                    }
-                }
+            } catch (e: Exception) {
+                _error.value = "Error al cargar las citas ${e.message}"
+            } finally {
+                _loading.value = false
             }
         }
+    }
+}

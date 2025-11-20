@@ -29,8 +29,6 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    val selectedRole by viewModel.selectedRole.observeAsState()
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,58 +81,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Seleccion de rol: "Paciente" o "Medico"
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { viewModel.selectedRole("Paciente") },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = if (selectedRole == "Paciente") Color(0xFF2196F3) else Color.LightGray
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Paciente")
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = { viewModel.selectedRole("Médico") },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = if (selectedRole == "Médico") Color(0xFF2196F3) else Color.LightGray
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Médico")
-                }
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Boton para iniciar sesion
-            Button(
-                onClick = {
-                    viewModel.signInWithEmailAndPassword(
-                        email = email,
-                        password = password,
-                        onLoginSuccess = { role ->
-                            onLoginSuccess(role) // Navegamos segun el rol del usuario
-                        },
-                        onError = { msg ->
-                            errorMessage = msg
-                        }
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3))
-            ) {
-                Text("Iniciar Sesión")
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

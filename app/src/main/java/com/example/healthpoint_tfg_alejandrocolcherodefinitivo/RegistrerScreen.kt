@@ -39,6 +39,7 @@ fun RegistrerScreen(
 
     var nombre by remember { mutableStateOf("") }
     var apellidos by remember { mutableStateOf("") }
+    var edad by remember { mutableStateOf(0) }
     var email by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var fechaNacimiento by remember { mutableStateOf("") }
@@ -208,7 +209,6 @@ fun RegistrerScreen(
                     }
 
                     viewModel.registerUser(
-                        // Parametros de usuario / paciente
                         nombre = nombre,
                         apellidos = apellidos,
                         email = email,
@@ -221,6 +221,7 @@ fun RegistrerScreen(
                         especialidad = especialidad,
                         numColegiado = numColegiado,
                         horario = horario,
+                        edad = edad,
 
                         onSuccess = { onRegisterSuccess(role) },
                         onError = { errorMessage = it }

@@ -14,62 +14,33 @@ class LoginScreenViewModel: ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Indicamos si la operacion de carga esta en curso
-    private val _loading = MutableLiveData(false)
-
-    // Rol seleccionado por el usuario
-    val selectedRole = MutableLiveData("Paciente") // Medico o Paciente
-    // Mensaje de error en la interfaz si falla el login
-    private val _errorMessage = MutableLiveData<String?>(null)
-    val errorMessage: MutableLiveData<String?> = _errorMessage
-
-
-    fun selectedRole(role: String){
-        errorMessage.value
-        selectedRole.value = role
-    }
-
     fun signInWithEmailAndPassword(
         email: String,
         password: String,
-        onLoginSuccess: (String) -> Unit, // Devolvemos el rol Medico o Pacinte
+        onLoginSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
-        _errorMessage.value = null
-        _loading.value = true
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
 
-        viewModelScope.launch {
-            try {
-                if ( email.isBlank() || password.isBlank() ) {
-                    throw IllegalArgumentException("El correo o la contraseña no pueden estar vacíos")
-                }
+                val uid = auth.currentUser!!.uid
 
-                auth.signInWithEmailAndPassword(email, password).await()
+                db.collection("Usuario").document(uid).get()
+                    .addOnSuccessListener { document ->
+                        val rol = document.getString("rol")
 
-                val userId = auth.currentUser?.uid
-                if(userId == null){
-                    throw Exception("No se pudo obtener el Id del usuario")
-                }
+                        if (rol != null) {
+                            onLoginSuccess(rol)
+                        } else {
+                            onError("No se encontró el rol del usuario")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        onError("Error al obtener datos: ${e.message}")
+                    }
 
-                // Consultamos la BBDD para saber que rol tiene asignado el usuario
-                val snapshot = db.collection("Usuario").document(userId).get().await()
-                if(!snapshot.exists()){
-                    throw Exception("No se encontróel usuario en Firestore")
-                }
-
-                val role = snapshot.getString("rol") ?: "Paciente"
-                Log.d("LOGIN", "Usuario con rol: $role ")
-
-                // Devolvemos el rol para navegar a la pantalla que corresponda segun el rol del usuario
-                onLoginSuccess(role)
-
-            } catch (e: Exception) {
-                Log.d("ERROR_LOGIN", e.message ?: "Error desconocido")
-                _errorMessage.value = e.message
-                onError(e.message ?: "Error al iniciar sesión")
-            } finally {
-                // Desactivamos el cargado siempre
-                _loading.value = false
+            } else {
+                onError("Error al iniciar sesión: ${task.exception?.message}")
             }
         }
     }

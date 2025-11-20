@@ -21,8 +21,4 @@ class TratamientosPacienteModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error = _error
 
-    fun cargarTratamientos(){
-        val userId = 
-    }
-
 }

@@ -2,14 +2,24 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class RegistrerScreenViewModel: ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    // Funcion suspendida para generar el id del usuario usando un contador
+    private suspend fun generarIdUsuario(collectionName: String, prefix: String, digits: Int = 3): String {
+        val snapshot = db.collection(collectionName).get().await()
+        val next = snapshot.size() + 1
+        return prefix + next.toString().padStart(digits, '0')
+    }
 
     val isLoading = mutableStateOf(false)
 
@@ -24,17 +34,66 @@ class RegistrerScreenViewModel: ViewModel() {
     fun registerUser(
         nombre: String,
         apellidos: String,
+        edad: Int,
         email: String,
         telefono: String,
         password: String,
-        role: String, // Paciente o Medico
+        role: String, // "Paciente" o "Medico"
         fechaNacimiento: String,
+        idCentroMedico: String? = null,
         especialidad: String = "",
         numColegiado: String = "",
         horario: String = "",
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        viewModelScope.launch {
+            try{
+                // Crear en FirebaseAuth
+                val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+
+                // Generar un id de usuario con el formato del contador
+                val nuevoIdUsuario = generarIdUsuario("Usuario", "user", 3)
+
+                // Creamos el documento con campos iguales a los del modelo de tablas
+                val objUsuario = hashMapOf(
+                    "Id_usuario" to nuevoIdUsuario,
+                    "nombre" to nombre,
+                    "apellido" to apellidos,
+                    "edad" to edad,
+                    "email" to email,
+                    "telefono" to telefono,
+                    "contraseña" to password,
+                    "rol" to role,
+                    "fechaNacimiento" to fechaNacimiento
+                )
+
+                db.collection("Usuario").document(nuevoIdUsuario).set(objUsuario).await()
+
+                // Si es un medico, creamos el documento Medico con su propio id
+                if (role == "Medico") {
+                    // Generamos el id
+                    val nuevoIdMedico = generarIdUsuario("Medico", "med", 3)
+
+                    val objMedico = hashMapOf(
+                        "Id_medico" to nuevoIdMedico,
+                        "nombre" to nombre,
+                        "apellido" to apellidos,
+                        "Id_usuario" to nuevoIdUsuario,
+                        "Id_centroMedico" to (idCentroMedico ?: ""), // Puede estar vacío si no se asigna
+                        "especialidad" to especialidad,
+                        "numColegiado" to numColegiado,
+                        "horario" to horario
+                    )
+
+                    db.collection("Medico").document(nuevoIdMedico).set(objMedico).await()
+                }
+
+                onSuccess()
+            } catch (e:Exception) {
+                onError(e.message ?: "Error al registrar el/la usuari@")
+            }
+        }
 
         isLoading.value = true
         val cleanedEmail = email.trim()

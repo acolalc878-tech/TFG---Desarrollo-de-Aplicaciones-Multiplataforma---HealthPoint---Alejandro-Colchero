@@ -46,7 +46,7 @@ fun CitasPacienteScreen(
 
     // Cargamos las citas al entrar en la pantalla
     LaunchedEffect(Unit) {
-        viewModel.cargarCitaPacientes()
+        viewModel.cargarCitasPorUsuario()
     }
 
     Scaffold(
@@ -142,7 +142,7 @@ fun CitaCard(cita: Cita){
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Medico: ${cita.id_medico}")
+            Text("Medico: ${cita.Id_medico}")
             Text("Fecha: ${cita.fecha}", style = MaterialTheme.typography.titleMedium)
             Text("Hora: ${cita.hora}")
             Text("Estado: ${cita.estado}")
