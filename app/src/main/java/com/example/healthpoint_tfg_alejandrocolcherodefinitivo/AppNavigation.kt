@@ -22,6 +22,7 @@ fun AppNavigation() {
     val CITA_PACIENTES_RUTA = "citas_pacientes"
     val HISTORIAL_PACIENTES_RUTA = "historial_pacientes"
     val TRATAMIENTO_PACIENTES_RUTA = "tratamiento_pacientes"
+    val VER_PERFIL_PACIENTE_RUTA = "perfil_paciente"
 
     NavHost(
         navController = navController,
@@ -80,7 +81,7 @@ fun AppNavigation() {
             )
         }
 
-        // HOME PACIENTE
+        // Home Pacientes
         composable(HOME_PACIENTE_RUTA) {
             HomePacienteScreen(
                 onLogout = {
@@ -97,7 +98,18 @@ fun AppNavigation() {
                 },
                 onVerTratamientos = {
                     navController.navigate(TRATAMIENTO_PACIENTES_RUTA)
+                },
+                onVerPerfil = {
+                    navController.navigate(VER_PERFIL_PACIENTE_RUTA)
                 }
+            )
+        }
+
+        composable(CITA_PACIENTES_RUTA) {
+            val viewModel = CitasPacienteViewModel()
+            CitasPacienteScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }

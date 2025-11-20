@@ -23,7 +23,6 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit){
-    // Animacion de fade-in / fade-out del logotipo
     val logo = remember {Animatable(0f) }
 
     LaunchedEffect(Unit) {

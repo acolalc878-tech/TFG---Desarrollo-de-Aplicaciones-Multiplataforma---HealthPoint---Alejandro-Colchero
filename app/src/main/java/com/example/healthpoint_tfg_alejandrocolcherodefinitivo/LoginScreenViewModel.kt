@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.lang.Error
 
 class LoginScreenViewModel: ViewModel() {
 
@@ -17,7 +16,6 @@ class LoginScreenViewModel: ViewModel() {
 
     // Indicamos si la operacion de carga esta en curso
     private val _loading = MutableLiveData(false)
-    val loading: MutableLiveData<Boolean> = _loading
 
     // Rol seleccionado por el usuario
     val selectedRole = MutableLiveData("Paciente") // Medico o Paciente
@@ -75,5 +73,4 @@ class LoginScreenViewModel: ViewModel() {
             }
         }
     }
-
 }

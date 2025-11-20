@@ -5,10 +5,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,8 +25,20 @@ fun HomePacienteScreen(
     onLogout: () -> Unit,
     onVerCita: () -> Unit,
     onVerHistorial: () -> Unit,
-    onVerTratamientos: () -> Unit
+    onVerTratamientos: () -> Unit,
+    onVerPerfil: () -> Unit
 ) {
+
+    // Estado de la pestaña activa
+    var selectedIndex by remember { mutableStateOf(0)}
+
+    val items = listOf(
+        BottomItem("Inicio", Icons.Default.Home),
+        BottomItem("Citas", Icons.Default.DateRange),
+        BottomItem("Tratamientos", Icons.Default.Favorite),
+        BottomItem("Perfil", Icons.Default.Person)
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -33,6 +50,27 @@ fun HomePacienteScreen(
                 }
             )
         },
+
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed{index, item ->
+                    NavigationBarItem(
+                        selected = selectedIndex == index,
+                        onClick = {
+                            selectedIndex = index
+
+                            when(index) {
+                                1 -> onVerCita()
+                                2 -> onVerTratamientos()
+                                3 -> onVerPerfil()
+                            }
+                        },
+                        icon = { Icon(item.icon, contentDescription = item.label)},
+                        label = { Text(item.label)}
+                    )
+                }
+            }
+        },
         containerColor = Color.White
     ) { padding ->
         Column(
@@ -40,61 +78,18 @@ fun HomePacienteScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // Titulo para citas
             Text(
-                text = "Bienvenid@ Paciente",
-                style = MaterialTheme.typography.headlineMedium
+                text = "Tus proximas citas...",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Aquí puedes gestionar tus citas, historial y tratamientos",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Botones
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = onVerCita,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text("Mis citas - HealthPoint")
-                }
-
-                Button(
-                    onClick = onVerHistorial,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text("Historial médico del/la paciente")
-                }
-
-                Button(
-                 onClick = onVerTratamientos,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text("Tratamientos")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Tartejtas de resumen (ejemplo de ultimas citas)
-            Text("últomas citas", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(16.dp))
 
-            val ejemploCitas = List(3) {
-                index ->
+            val ejemploCitas = List(3) { index ->
                 CitaResumen(
                     fecha = "22/10/2026",
                     hora = "10:20 AM",
@@ -104,7 +99,7 @@ fun HomePacienteScreen(
             }
 
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                items(ejemploCitas) {cita ->
+                items(ejemploCitas) { cita ->
                     detallesCitaCard(cita)
                 }
             }
@@ -112,30 +107,29 @@ fun HomePacienteScreen(
     }
 }
 
-data class CitaResumen(val fecha: String, val hora: String, val medico: String, val estado: String)
+data class BottomItem(
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
+
+data class CitaResumen(
+    val fecha: String,
+    val hora: String,
+    val medico: String,
+    val estado: String
+)
 
 @Composable
 fun detallesCitaCard(cita: CitaResumen) {
     Card(
-        modifier = Modifier.width(180.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier.width(200.dp),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text("Fecha: ${cita.fecha}", style = MaterialTheme.typography.bodyMedium)
-            Text("Hora: ${cita.hora}")
-            Text("Médico: ${cita.medico}")
-            Text("Estado: ${cita.estado}")
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("${cita.fecha}", style = MaterialTheme.typography.titleMedium)
+            Text("${cita.hora}")
+            Text("👨‍⚕${cita.medico}")
+            Text("Estado: ${cita.estado}", color = MaterialTheme.colorScheme.primary)
         }
-    }
-}
-
-@Composable
-fun navegacionAbajo() {
-    NavigationBar(
-        containerColor = Color.White
-    ) {
-        NavigationBarItem(selected = true, onClick = {}, icon = { Icon(Icons.Default.Home, contentDescription = null) })
-        NavigationBarItem(selected = true, onClick = {}, icon = { Icon(Icons.Default.DateRange, contentDescription = null) })
-        NavigationBarItem(selected = true, onClick = {}, icon = { Icon(Icons.Default.Person, contentDescription = null) })
     }
 }
