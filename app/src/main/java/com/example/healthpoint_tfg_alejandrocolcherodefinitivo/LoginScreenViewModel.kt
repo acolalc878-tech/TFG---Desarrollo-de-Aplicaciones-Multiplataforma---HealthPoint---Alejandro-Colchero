@@ -1,9 +1,8 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -20,27 +19,35 @@ class LoginScreenViewModel: ViewModel() {
         onLoginSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
+        viewModelScope.launch {
+            try {
+                auth.signInWithEmailAndPassword(email.trim(), password).await()
 
-                val uid = auth.currentUser!!.uid
+                // Buscamos el usuario por el email
+                val snapshot = db.collection("Usuario")
+                    .whereEqualTo("email", email.trim())
+                    .limit(1)
+                    .get()
+                    .await()
 
-                db.collection("Usuario").document(uid).get()
-                    .addOnSuccessListener { document ->
-                        val rol = document.getString("rol")
+                if (snapshot.isEmpty) {
+                    // Si no hay un documento devolvermos error
+                    auth.signOut()
+                    onError("No se ha encontrado el usuario en la base de datos")
+                    return@launch
+                }
 
-                        if (rol != null) {
-                            onLoginSuccess(rol)
-                        } else {
-                            onError("No se encontró el rol del usuario")
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        onError("Error al obtener datos: ${e.message}")
-                    }
+                val document = snapshot.documents[0]
+                val role= document.getString("rol") ?: ""
+                if (role.isBlank()){
+                    auth.signOut()
+                    onError("No se encontró el rol de usuario en la base de dato")
+                    return@launch
+                }
 
-            } else {
-                onError("Error al iniciar sesión: ${task.exception?.message}")
+                onLoginSuccess(role)
+            } catch (e: Exception){
+                onError(e.message ?: "Error al inicar sesion")
             }
         }
     }

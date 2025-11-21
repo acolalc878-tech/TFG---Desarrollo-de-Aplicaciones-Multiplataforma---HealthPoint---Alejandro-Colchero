@@ -4,10 +4,8 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +25,9 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -68,6 +68,33 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Boton de iniciar sesion
+            Button(
+                onClick = {
+                    errorMessage = ""
+                    isLoading = true
+
+                    viewModel.signInWithEmailAndPassword(
+                        email,
+                        password,
+                        onLoginSuccess = { role ->
+                            isLoading= false
+                            onLoginSuccess(role) // Regresa el rol "Paciente" o "Medico"
+                        },
+                        onError = { error ->
+                            isLoading = false
+                            errorMessage = error
+                        }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
+            ) {
+                Text(text = if (isLoading) "Cargando..." else "Iniciar sesión")
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Mostramos un mensaje de error
@@ -80,8 +107,6 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             Spacer(modifier = Modifier.height(16.dp))
 

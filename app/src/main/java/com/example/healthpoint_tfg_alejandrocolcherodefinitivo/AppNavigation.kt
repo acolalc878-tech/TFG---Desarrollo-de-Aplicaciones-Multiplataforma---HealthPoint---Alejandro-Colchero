@@ -61,21 +61,13 @@ fun AppNavigation() {
             )
         }
 
-        // Registro de medicos y pacientes
+        // REGISTER
         composable(REGISTER_RUTA){
             RegistrerScreen(
-                onRegisterSuccess = { role ->
-                    when (role) {
-                        "Paciente" -> {
-                            navController.navigate(HOME_PACIENTE_RUTA) {
-                                popUpTo(REGISTER_RUTA) { inclusive = true }
-                            }
-                        }
-                        "Medico" -> {
-                            navController.navigate(HOME_MEDICO_RUTA) {
-                                popUpTo(REGISTER_RUTA) { inclusive = true }
-                            }
-                        }
+                onRegisterSuccess = {
+                    // Al apuntar a login aseguramos que el usuario no queda logueado automáticamente
+                    navController.navigate(LOGIN_RUTA) {
+                        popUpTo(REGISTER_RUTA) { inclusive = true }
                     }
                 }
             )
@@ -102,14 +94,6 @@ fun AppNavigation() {
                 onVerPerfil = {
                     navController.navigate(VER_PERFIL_PACIENTE_RUTA)
                 }
-            )
-        }
-
-        composable(CITA_PACIENTES_RUTA) {
-            val viewModel = CitasPacienteViewModel()
-            CitasPacienteScreen(
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() }
             )
         }
     }

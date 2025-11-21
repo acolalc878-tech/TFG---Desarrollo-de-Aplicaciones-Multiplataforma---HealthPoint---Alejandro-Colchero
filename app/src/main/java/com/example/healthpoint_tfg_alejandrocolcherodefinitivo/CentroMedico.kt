@@ -2,8 +2,8 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 data class CentroMedico(
     val Id_centroMedico: String = "",
-    val nombreCentroMedico: String = "",
-    val direccion: String = "",
+    val nombreCentro: String = "",
+    val dirección: String = "",
     val telefono: String = "",
     val email: String = ""
 )

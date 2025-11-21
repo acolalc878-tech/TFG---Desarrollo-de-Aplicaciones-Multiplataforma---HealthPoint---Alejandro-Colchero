@@ -22,6 +22,7 @@ class CitasPacienteViewModel: ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error = _error
 
+    // Cargamos por el id del usuario, si idUsuarioModelo es nulo, se resuelve por email
     fun cargarCitasPorUsuario(idUsuarioModelo: String? = null) {
         viewModelScope.launch {
             try {
@@ -29,22 +30,17 @@ class CitasPacienteViewModel: ViewModel() {
 
                 val idUsuario = idUsuarioModelo ?: run {
                     // Resolucion por email
-                    val email = auth.currentUser?.email ?: return@launch
-                    val snapshot = db.collection("Usuario")
-                        .whereEqualTo("email", email)
+                    val email = auth.currentUser?.email ?: throw Exception("Usuario no autenticado")
+                    val snapshot = db.collection("Usuario").whereEqualTo("email", email)
+                        .limit(1)
                         .get()
                         .await()
-
-                    if (snapshot.isEmpty) {
-                        _error.value = "Este usuario no se encontró en la base de datos"
-                        _loading.value = false
-                        return@launch
-                    }
+                    if (snapshot.isEmpty) throw Exception("Usuario no encontrado en Firestore")
                     snapshot.documents[0].getString("Id_usuario") ?: ""
                 }
 
-                val result = db.collection("citas")
-                    .whereEqualTo("id_usuario", idUsuario)
+                val result = db.collection("Cita")
+                    .whereEqualTo("Id_usuario", idUsuario)
                     .get()
                     .await()
 
@@ -53,22 +49,18 @@ class CitasPacienteViewModel: ViewModel() {
                     try {
                         Cita(
                             Id_Cita = doc.id,
-                            Id_usuario = doc.getString("id_usuario") ?: "",
-                            Id_medico = doc.getString("id_medico") ?: "",
-                            Id_centroMedico = doc.getString("id_centroMedico") ?: "",
+                            Id_usuario = doc.getString("Id_usuario") ?: "",
+                            Id_medico = doc.getString("Id_medico") ?: "",
+                            Id_centroMedico = doc.getString("Id_centroMedico") ?: "",
                             fecha = doc.getString("fecha") ?: "",
                             hora = doc.getString("hora") ?: "",
                             motivo = doc.getString("motivo") ?: "",
                             estado = doc.getString("estado") ?: "",
                             notasMedico = doc.getString("notasMedico") ?: ""
                         )
-                    } catch (e: Exception) {
-                        null
-                    }
+                    } catch (e: Exception) {null}
                 }
-
                 _citas.value = lista
-
             } catch (e: Exception) {
                 _error.value = "Error al cargar las citas ${e.message}"
             } finally {
