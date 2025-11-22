@@ -67,7 +67,6 @@ dependencies {
     implementation("androidx.compose.animation:animation")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     implementation("androidx.compose.material3:material3")
-    implementation(libs.androidx.runtime.livedata)
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 

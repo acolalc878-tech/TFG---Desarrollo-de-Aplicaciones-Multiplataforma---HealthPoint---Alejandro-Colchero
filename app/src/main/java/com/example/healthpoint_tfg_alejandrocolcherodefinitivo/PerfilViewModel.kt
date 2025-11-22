@@ -37,4 +37,25 @@ class PerfilViewModel: ViewModel() {
             }
         }
     }
+
+    fun guardarCambiosPerfil(nuevosDatos: Usuario){
+        viewModelScope.launch {
+            try{
+                loading.value = true
+
+                val snapshot = db.collection("Usuario").whereEqualTo("email", nuevosDatos.email.trim()).limit(1)
+                    .get()
+                    .await()
+                if(snapshot.isEmpty) throw Exception("Usuario no encontrado")
+
+                val documentId = snapshot.documents[0].id
+                db.collection("Usuario").document(documentId).set(nuevosDatos).await()
+                mensajeGuardado.value = "Cambios guardados"
+            } catch (e: Exception) {
+                mensajeGuardado.value = e.message
+            } finally {
+                loading.value = false
+            }
+        }
+    }
 }

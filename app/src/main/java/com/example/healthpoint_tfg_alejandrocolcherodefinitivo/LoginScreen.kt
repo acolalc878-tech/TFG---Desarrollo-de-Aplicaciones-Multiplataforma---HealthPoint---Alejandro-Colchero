@@ -1,65 +1,53 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.interaction.MutableInteractionSource
-
 
 @Composable
 fun LoginScreen(
     viewModel: LoginScreenViewModel = viewModel(),
-    onLoginSuccess: (Any?) -> Unit = {},
+    onLoginSuccess: (String) -> Unit = {},
     onCreateAccountClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.Center
-    ) {
+    Scaffold { padding ->
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.Center
         ) {
-            // Nombre de la app
             Text(
-                text = "HealthPoint",
+                "HealthPoint",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color(0xDD2196F3)
+                color = MaterialTheme.colorScheme.primary
             )
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Campo del correo
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Correo Electrónico") },
-                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Correo electrónico") },
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Campo de la contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -68,61 +56,47 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Boton de iniciar sesion
             Button(
                 onClick = {
                     errorMessage = ""
                     isLoading = true
-
                     viewModel.signInWithEmailAndPassword(
-                        email,
-                        password,
-                        onLoginSuccess = { role ->
-                            isLoading= false
-                            onLoginSuccess(role) // Regresa el rol "Paciente" o "Medico"
-                        },
-                        onError = { error ->
+                        email = email,
+                        password = password,
+                        onLoginSuccess = {
                             isLoading = false
-                            errorMessage = error
+                            onLoginSuccess(it)
+                        },
+                        onError = { msg ->
+                            isLoading = false
+                            errorMessage = msg
                         }
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             ) {
-                Text(text = if (isLoading) "Cargando..." else "Iniciar sesión")
+                Text(if (isLoading) "Cargando..." else "Iniciar sesión")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Mostramos un mensaje de error
             if (errorMessage.isNotEmpty()) {
-                Text(
-                    text = errorMessage,
-                    color = Color.Red,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(errorMessage, color = MaterialTheme.colorScheme.error)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Enlace para crear cuenta
             Text(
                 text = "¿No tienes cuenta? Crear cuenta",
                 modifier = Modifier
-                    .padding(8.dp)
                     .clickable(
+                        onClick = onCreateAccountClick,
                         interactionSource = remember { MutableInteractionSource() },
                         indication = LocalIndication.current
-                    ) {
-                        onCreateAccountClick()
-                    },
-                color = Color(0xFF2196F3),
-                textDecoration = TextDecoration.Underline
+                    ),
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

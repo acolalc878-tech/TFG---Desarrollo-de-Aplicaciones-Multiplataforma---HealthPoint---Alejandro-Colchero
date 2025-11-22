@@ -2,7 +2,6 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +14,13 @@ class TratamientosPacienteViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
 
     private val _tratamientos = MutableStateFlow<List<Tratamiento>>(emptyList())
+    val tratamientos = _tratamientos
 
     private val _loading = MutableStateFlow(false)
+    val loading = _loading
 
     private val _error = MutableStateFlow<String?>(null)
+    val error = _error
 
     // Funcion para cargar los tratamientos que tiene el usuario
     fun cargarTratamientos(idUsuarioModelo: String?= null) {

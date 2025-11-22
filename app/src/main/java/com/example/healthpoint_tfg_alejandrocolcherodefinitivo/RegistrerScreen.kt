@@ -1,6 +1,5 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -55,6 +52,7 @@ fun RegistrerScreen(
     var numColegiado by remember { mutableStateOf("") }
     var especialidad by remember { mutableStateOf("") }
     var horario by remember { mutableStateOf("") }
+    var idCentroMedico by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(modifier = Modifier
@@ -75,8 +73,12 @@ fun RegistrerScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { role = "Paciente" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Paciente") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) { Text("Paciente") }
-                Button(onClick = { role = "Medico" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Medico") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) { Text("Médico") }
+                Button(onClick = { role = "Paciente" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Paciente") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) {
+                    Text("Paciente")
+                }
+                Button(onClick = { role = "Medico" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Medico") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) {
+                    Text("Médico")
+                }
             }
 
             if (role == "Medico") {
@@ -84,12 +86,14 @@ fun RegistrerScreen(
                 OutlinedTextField(value = especialidad, onValueChange = { especialidad = it}, label = { Text("Especialidad")}, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = numColegiado, onValueChange = { numColegiado = it}, label = { Text("NºColegiado")}, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = horario, onValueChange = { horario = it}, label = { Text("Horario")}, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = idCentroMedico, onValueChange = { idCentroMedico = it }, label = { Text("ID Centro Médico (opcional)") }, modifier = Modifier.fillMaxWidth())
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = {
-                viewModel.registerUser(
+            Button(
+                onClick = {
+                    viewModel.registerUser(
                     nombre = nombre,
                     apellidos = apellidos,
                     edad = edad,
@@ -98,6 +102,7 @@ fun RegistrerScreen(
                     password = password,
                     role = role,
                     fechaNacimiento = fechaNacimiento,
+                    idCentroMedico = idCentroMedico.takeIf { it.isNotBlank() },
                     especialidad = especialidad,
                     numColegiado = numColegiado,
                     horario = horario,
@@ -107,7 +112,9 @@ fun RegistrerScreen(
                     onError = { msg ->
                     }
                 )
-            }, modifier = Modifier.fillMaxWidth(), enabled = !isLoading) {
+            },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth()) {
                 Text(if (!isLoading) "Crear cuenta" else "Creando cuenta...")
             }
 
