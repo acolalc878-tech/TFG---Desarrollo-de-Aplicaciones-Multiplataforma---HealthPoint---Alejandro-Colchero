@@ -23,7 +23,7 @@ class CitasMedicoViewModel : ViewModel() {
     fun cargarCitasMedico(idMedico: String) {
         viewModelScope.launch {
             _loading.value = true
-            _citas.value = repo.obtenerCitasMedicos(idMedico)
+            _citas.value = repo.obtenerCitasPorMedico(idMedico)
             _loading.value = false
         }
     }
@@ -32,9 +32,13 @@ class CitasMedicoViewModel : ViewModel() {
     fun crearCita(cita: Cita){
         viewModelScope.launch {
             _loading.value = true
-            val ok = repo.crearCita(cita)
-            _mensaje.value = if (ok) "Cita creada con exito" else "Error al crear la cita"
-            _loading.value = false
+            try{
+                repo.crearCita(cita)
+                _mensaje.value = "Cita creada con exito"
+            } catch (e: Exception){
+                _mensaje.value = "Error al crear la cita: ${e.message}"
+            }
+            _loading.value
         }
     }
 
@@ -42,8 +46,13 @@ class CitasMedicoViewModel : ViewModel() {
     fun editarCitaMedico(cita: Cita) {
         viewModelScope.launch {
             _loading.value = true
-            val ok = repo.editarCira(cita)
-            _mensaje.value = if (ok) "Cita modificada con exito" else "Error al modificada la cita"
+            try{
+                repo.editarCira(cita)
+                _mensaje.value = "Cita modificada con exito"
+
+            } catch (e: Exception){
+                _mensaje.value = "Error al modificar la cita: ${e.message}"
+            }
             _loading.value = false
         }
     }
@@ -52,8 +61,12 @@ class CitasMedicoViewModel : ViewModel() {
     fun cambiarEstado(idCita: String, estado: String){
         viewModelScope.launch {
             _loading.value = true
-            val ok = repo.actualizarEstado(idCita, estado)
-            _mensaje.value = if (ok) "Estado actualizado" else "Error al actualizar el estado"
+            try {
+                repo.actualizarEstado(idCita, estado)
+                _mensaje.value = "Estado cambiado con éxito"
+            } catch (e: Exception) {
+                _mensaje.value = "Error al actualizar el estado: ${e.message}"
+            }
             _loading.value = false
         }
     }

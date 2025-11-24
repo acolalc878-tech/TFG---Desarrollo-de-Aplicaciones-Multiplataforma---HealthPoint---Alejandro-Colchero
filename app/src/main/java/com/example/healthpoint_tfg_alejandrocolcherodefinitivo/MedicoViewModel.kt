@@ -2,7 +2,6 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -10,9 +9,6 @@ class MedicoViewModel(
     private val citaRepo: CitaRepository = CitaRepository(),
     private val usuarioRepo: UsuarioRepository = UsuarioRepository()
 ) : ViewModel() {
-
-    // Instancia de autenticacion de firebase
-    private val auth = FirebaseAuth.getInstance()
 
     val citasMedico = MutableStateFlow<List<Cita>>(emptyList())
     val pacientesEncontrados = MutableStateFlow<List<Usuario>>(emptyList())
@@ -69,7 +65,22 @@ class MedicoViewModel(
     fun cambiarEstadoCita(idCita: String, nuevoEstado: String, idMedico: String) {
         viewModelScope.launch {
             try{
-                citaRepo.actualizarEstado()
+                citaRepo.actualizarEstado(idCita, nuevoEstado)
+                cargarCitasAsignadasMedico(idMedico)
+            } catch (e: Exception) {
+                error.value = "Error al actualizar estado: ${e.message}"
+            }
+        }
+    }
+
+    // Buscamos a los pacientes por su nombre
+    fun buscarPacientesNombre(nombre: String) {
+        viewModelScope.launch {
+            try{
+                val lista = usuarioRepo.buscarPacientesPorNombre(nombre)
+                pacientesEncontrados.value = lista
+            } catch (e: Exception) {
+                error.value = "Error al buscar a los pacientes: ${e.message}"
             }
         }
     }

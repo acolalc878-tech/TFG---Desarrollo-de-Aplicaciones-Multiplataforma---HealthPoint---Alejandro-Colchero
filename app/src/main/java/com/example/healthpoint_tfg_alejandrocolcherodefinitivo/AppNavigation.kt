@@ -16,10 +16,17 @@ fun AppNavigation() {
     val LOGIN_RUTA = "login_screen"
     val REGISTER_RUTA = "register_screen"
     val HOME_PACIENTE_RUTA = "home_paciente"
-    val HOME_MEDICO_RUTA = "home_medico"
     val CITA_PACIENTES_RUTA = "citas_pacientes"
     val TRATAMIENTO_PACIENTES_RUTA = "tratamiento_pacientes"
     val VER_PERFIL_PACIENTE_RUTA = "perfil_paciente"
+
+    val HOME_MEDICO_RUTA = "home_medico"
+    val VER_PERFIL_MEDICO_RUTA = "perfil_medico"
+    val VER_CENTRO_MEDICO_RUTA = "centro_medico"
+    val GESTIONAR_CITAS_RUTA = "gestionar_citas_medico"
+    val BUSCAR_MEDICAMENTOS_RUTA = "buscar_medicamentos"
+    val GESTIONAR_PACIENTES_RUTA = "gestionar_pacientes_medico"
+    val GESTIONAR_TRATAMIENTOS_RUTA = "gestionar_tratamientos_medico"
 
     NavHost(navController = navController, startDestination = SPLASH_RUTA) {
         // Splash Screen
@@ -79,15 +86,20 @@ fun AppNavigation() {
 
         // Home Medico
         composable(HOME_MEDICO_RUTA) {
-            HomePacienteScreen(
+            HomeMedicoScreen(
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
-                    navController.navigate(LOGIN_RUTA) {popUpTo(HOME_MEDICO_RUTA) {inclusive = true} }
+                    navController.navigate(LOGIN_RUTA) {
+                        popUpTo(HOME_MEDICO_RUTA) {
+                            inclusive = true}
+                    }
                 },
-                onVerCita = {navController.navigate(CITA_PACIENTES_RUTA)},
-                onVerTratamientos = {navController.navigate(TRATAMIENTO_PACIENTES_RUTA)},
-                onVerPerfil = {navController.navigate(VER_PERFIL_PACIENTE_RUTA)},
-                onVerHistorial = {/**/}
+                onVerPerfil = {navController.navigate(VER_PERFIL_MEDICO_RUTA)},
+                onVerCentro = {navController.navigate(VER_CENTRO_MEDICO_RUTA)},
+                onGestionarCitas = {navController.navigate(GESTIONAR_CITAS_RUTA)},
+                onBuscarMedicamentos = {navController.navigate(BUSCAR_MEDICAMENTOS_RUTA)},
+                onGestionarPacientes = {navController.navigate(GESTIONAR_PACIENTES_RUTA)},
+                onGestionarTratamientos = {navController.navigate(GESTIONAR_TRATAMIENTOS_RUTA)}
             )
         }
 

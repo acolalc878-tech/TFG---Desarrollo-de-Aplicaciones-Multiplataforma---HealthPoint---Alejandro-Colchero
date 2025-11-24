@@ -10,7 +10,15 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeMedicoScreen(onLogout: () -> Unit, onVerCita: () -> Unit) {
+fun HomeMedicoScreen(
+    onLogout: () -> Unit,
+    onGestionarPacientes: () -> Unit,
+    onGestionarCitas: () -> Unit,
+    onGestionarTratamientos: () -> Unit,
+    onVerCentro: () -> Unit,
+    onVerPerfil: () -> Unit,
+    onBuscarMedicamentos: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -26,42 +34,85 @@ fun HomeMedicoScreen(onLogout: () -> Unit, onVerCita: () -> Unit) {
             )
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+
             Text(
                 "Bienvenid@, Doctor/a",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                "Aquí podrá consultar todas sus citas, pacientes asignados y añadir anotaciones.",
+                "Seleccione qué desea gestionar:",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Botones de acciones
+
             // Botón 1
-            Button( onClick = onVerCita,
+            Button(
+                onClick = onGestionarPacientes,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Ver mis citas")
+                Text("Gestionar Pacientes")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Botón 2
             Button(
-                onClick = { /* navegar al historial */ },
+                onClick = onGestionarCitas,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Historial Médico")
+                Text("Gestionar Citas")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onGestionarTratamientos,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Gestionar Tratamientos")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onVerCentro,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Información del centro médico asignado")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onBuscarMedicamentos,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Buscar Medicamentos")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onVerPerfil,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ver Perfil")
             }
         }
     }
