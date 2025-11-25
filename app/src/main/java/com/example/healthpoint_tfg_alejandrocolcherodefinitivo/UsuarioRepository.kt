@@ -24,4 +24,18 @@ class UsuarioRepository {
             .addOnFailureListener { callback(null) }
     }
 
+    fun buscarPacientesPorNombre(nombre: String, callback: (List<Usuario>) -> Unit) {
+        usuarioCollection
+            .whereEqualTo("tipo", "paciente")
+            .whereGreaterThanOrEqualTo("nombre", nombre)
+            .whereLessThanOrEqualTo("nombre", nombre + "\uf8ff")
+            .get()
+            .addOnSuccessListener { result ->
+                val lista = result.documents.mapNotNull { it.toObject(Usuario::class.java) }
+                callback(lista)
+            }
+            .addOnFailureListener {
+                callback(emptyList())
+            }
+    }
 }

@@ -19,54 +19,37 @@ class CitasMedicoViewModel : ViewModel() {
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> get() = _loading
 
-    // Funcion para cargar las citas del médico
     fun cargarCitasMedico(idMedico: String) {
+            _loading.value = true
+            repo.obtenerCitasPorMedico(idMedico){ listaCitas ->
+                _citas.value = listaCitas
+                _loading.value = false
+        }
+    }
+
+    fun crearCita(cita: Cita) {
         viewModelScope.launch {
             _loading.value = true
-            _citas.value = repo.obtenerCitasPorMedico(idMedico)
+            val ok = repo.crearCita(cita)
+            _mensaje.value = if (ok) "Cita creada con éxito" else "Error al crear cita"
             _loading.value = false
         }
     }
 
-    // Creamos una nueva cita
-    fun crearCita(cita: Cita){
+    fun editarCita(cita: Cita) {
         viewModelScope.launch {
             _loading.value = true
-            try{
-                repo.crearCita(cita)
-                _mensaje.value = "Cita creada con exito"
-            } catch (e: Exception){
-                _mensaje.value = "Error al crear la cita: ${e.message}"
-            }
-            _loading.value
-        }
-    }
-
-    // Editar cita del medico
-    fun editarCitaMedico(cita: Cita) {
-        viewModelScope.launch {
-            _loading.value = true
-            try{
-                repo.editarCira(cita)
-                _mensaje.value = "Cita modificada con exito"
-
-            } catch (e: Exception){
-                _mensaje.value = "Error al modificar la cita: ${e.message}"
-            }
+            val ok = repo.editarCira(cita)
+            _mensaje.value = if (ok) "Cita editada" else "Error editando cita"
             _loading.value = false
         }
     }
 
-    // Para cambiar de estado a la cita
-    fun cambiarEstado(idCita: String, estado: String){
+    fun cambiarEstado(idCita: String, nuevoEstado: String) {
         viewModelScope.launch {
             _loading.value = true
-            try {
-                repo.actualizarEstado(idCita, estado)
-                _mensaje.value = "Estado cambiado con éxito"
-            } catch (e: Exception) {
-                _mensaje.value = "Error al actualizar el estado: ${e.message}"
-            }
+            val ok = repo.actualizarEstado(idCita, nuevoEstado)
+            _mensaje.value = if (ok) "Estado actualizado" else "Error cambiando estado"
             _loading.value = false
         }
     }

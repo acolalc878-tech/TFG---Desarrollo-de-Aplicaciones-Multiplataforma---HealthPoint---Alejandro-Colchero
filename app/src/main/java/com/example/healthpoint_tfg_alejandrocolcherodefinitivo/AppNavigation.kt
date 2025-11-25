@@ -85,7 +85,7 @@ fun AppNavigation() {
         }
 
         // Home Medico
-        composable(HOME_MEDICO_RUTA) {
+        /*composable(HOME_MEDICO_RUTA) {
             HomeMedicoScreen(
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
@@ -99,9 +99,12 @@ fun AppNavigation() {
                 onGestionarCitas = {navController.navigate(GESTIONAR_CITAS_RUTA)},
                 onBuscarMedicamentos = {navController.navigate(BUSCAR_MEDICAMENTOS_RUTA)},
                 onGestionarPacientes = {navController.navigate(GESTIONAR_PACIENTES_RUTA)},
-                onGestionarTratamientos = {navController.navigate(GESTIONAR_TRATAMIENTOS_RUTA)}
+                onGestionarTratamientos = {navController.navigate(GESTIONAR_TRATAMIENTOS_RUTA)},
+                idUsuario =,
+                viewModel =
+
             )
-        }
+        }*/
 
 
 

@@ -3,14 +3,19 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeMedicoScreen(
+    idUsuario: String,
+    viewModel: MedicoViewModel = viewModel(),
     onLogout: () -> Unit,
     onGestionarPacientes: () -> Unit,
     onGestionarCitas: () -> Unit,
@@ -19,6 +24,13 @@ fun HomeMedicoScreen(
     onVerPerfil: () -> Unit,
     onBuscarMedicamentos: () -> Unit
 ) {
+
+    val datosMedico = viewModel.pacientesEncontrados.collectAsState()
+
+    LaunchedEffect(idUsuario) {
+
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

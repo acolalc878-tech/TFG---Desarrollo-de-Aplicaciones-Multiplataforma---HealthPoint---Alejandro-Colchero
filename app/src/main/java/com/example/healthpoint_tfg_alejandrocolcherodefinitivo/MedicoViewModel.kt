@@ -18,16 +18,11 @@ class MedicoViewModel(
 
     // Cargamos citas asignadas del medico
     fun cargarCitasAsignadasMedico(idMedico: String) {
-        viewModelScope.launch {
-            try{
-                loading.value = true
-                val lista = citaRepo.obtenerCitasPorMedico(idMedico)
-                citasMedico.value = lista
-            } catch (e: Exception) {
-                error.value = "Error al cargar citas: ${e.message}"
-            } finally {
-                loading.value = false
-            }
+        loading.value = true
+
+        citaRepo.obtenerCitasPorMedico(idMedico) { lista ->
+            citasMedico.value = lista
+            loading.value = false
         }
     }
 
@@ -64,23 +59,27 @@ class MedicoViewModel(
     // Cambiar estado de una cita a (Pendiente o Realizada)
     fun cambiarEstadoCita(idCita: String, nuevoEstado: String, idMedico: String) {
         viewModelScope.launch {
-            try{
+            try {
+                loading.value = true
                 citaRepo.actualizarEstado(idCita, nuevoEstado)
                 cargarCitasAsignadasMedico(idMedico)
             } catch (e: Exception) {
                 error.value = "Error al actualizar estado: ${e.message}"
+            } finally {
+                loading.value = false
             }
         }
     }
 
-    // Buscamos a los pacientes por su nombre
+    // Buscar pacientes
     fun buscarPacientesNombre(nombre: String) {
         viewModelScope.launch {
-            try{
-                val lista = usuarioRepo.buscarPacientesPorNombre(nombre)
-                pacientesEncontrados.value = lista
+            try {
+                usuarioRepo.buscarPacientesPorNombre(nombre) { lista ->
+                    pacientesEncontrados.value = lista
+                }
             } catch (e: Exception) {
-                error.value = "Error al buscar a los pacientes: ${e.message}"
+                error.value = "Error al buscar pacientes: ${e.message}"
             }
         }
     }
