@@ -27,23 +27,23 @@ class CitaRepository {
         citasReferencia.document(idCita).update("estado", nuevoEstado).await()
     }
 
-    // Como obtenemos las citas de un paciente con corrutinas
-    suspend fun obtenerCitasPorMedico(idMedico: String): List<Cita> {
-        val snapshot = citasReferencia
-            .whereEqualTo("Id_medico", idMedico)
+    fun obtenerCitasPorPaciente(idUsuario: String, callback: (List<Cita>) -> Unit) {
+        db.collection("Cita")
+            .whereEqualTo("id_usuario", idUsuario)
             .get()
-            .await()
-
-        return snapshot.toObjects(Cita::class.java)
+            .addOnSuccessListener { result ->
+                callback(result.toObjects(Cita::class.java))
+            }
+            .addOnFailureListener { callback(emptyList()) }
     }
 
-    // Listener en tiempo real para las citas de los pacientes
-    fun listenCitasUsuario(idUsuario: String, onChange:(List<Cita>) -> Unit
-    ): ListenerRegistration {
-        return citasReferencia
-            .whereEqualTo("Id_usuario", idUsuario).addSnapshotListener{value, e ->
-                val lista = value?.toObjects(Cita::class.java)?: emptyList()
-                onChange(lista)
+    fun obtenerCitasPorMedico(idMedico: String, callback: (List<Cita>) -> Unit) {
+        db.collection("Cita")
+            .whereEqualTo("id_medico", idMedico)
+            .get()
+            .addOnSuccessListener { result ->
+                callback(result.toObjects(Cita::class.java))
             }
+            .addOnFailureListener { callback(emptyList()) }
     }
 }

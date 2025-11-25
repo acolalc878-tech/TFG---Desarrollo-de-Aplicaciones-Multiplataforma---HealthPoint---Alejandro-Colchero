@@ -7,7 +7,6 @@ data class Usuario(
     val edad: Int = 0,
     val email: String = "",
     val telefono: String = "",
-    val contraseña: String = "",
     val rol: String = "", // "Paciente" o "Medico"
     val fechaNacimiento: String = ""
 )

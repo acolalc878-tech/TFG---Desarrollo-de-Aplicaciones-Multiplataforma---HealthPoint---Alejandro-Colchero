@@ -1,28 +1,27 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 
 class UsuarioRepository {
 
     // Hacemos referencia a la base de datos y a los usuarios
     private val db = FirebaseFirestore.getInstance()
-    private val userReferencia = db.collection("Usuario")
+    private val usuarioCollection = db.collection("Usuario")
 
-    // Hacemos la busqueda de pacientes por nombre
-    suspend fun buscarPacientesPorNombre(nombre: String): List<Usuario> {
-        val snapshot = userReferencia.whereEqualTo("rol", "Paciente")
-            .whereGreaterThanOrEqualTo("nombre", nombre)
-            .whereLessThanOrEqualTo("nombre", nombre + "\uf8ff")
+    fun crearUsuario(usuario: Usuario, callback: (Boolean) -> Unit) {
+        usuarioCollection.document(usuario.Id_usuario)
+            .set(usuario)
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
+    }
+
+    fun obtenerUsuario(idUsuario: String, callback: (Usuario?) -> Unit) {
+        usuarioCollection.document(idUsuario)
             .get()
-            .await()
-
-        return snapshot.toObjects(Usuario::class.java)
+            .addOnSuccessListener { document ->
+                callback(document.toObject(Usuario::class.java))
+            }
+            .addOnFailureListener { callback(null) }
     }
 
-    // Hacemos la busqueda de usuario por email también
-    suspend fun obtenerUsuarioPorEmail(email: String): Usuario? {
-        val snapshot = userReferencia.whereEqualTo("email", email).get().await()
-        return snapshot.documents.firstOrNull()?.toObject(Usuario::class.java)
-    }
 }
