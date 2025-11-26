@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     viewModel: LoginScreenViewModel = viewModel(),
-    onLoginSuccess: (String) -> Unit = {},
+    onLoginSuccess: (String, Any?) -> Unit,
     onCreateAccountClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }

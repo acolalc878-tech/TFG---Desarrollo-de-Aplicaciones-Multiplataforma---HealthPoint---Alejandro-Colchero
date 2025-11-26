@@ -17,7 +17,7 @@ fun AppNavigation() {
     val LOGIN_RUTA = "login_screen"
     val REGISTER_RUTA = "register_screen"
     val HOME_PACIENTE_RUTA = "home_paciente"
-    val HOME_MEDICO_RUTA = "home_medico"
+    val HOME_MEDICO_RUTA = "home_medico/{idMedico}"
     val CITA_PACIENTES_RUTA = "citas_pacientes"
     val TRATAMIENTO_PACIENTES_RUTA = "tratamiento_pacientes"
     val VER_PERFIL_PACIENTE_RUTA = "perfil_paciente"
@@ -40,7 +40,7 @@ fun AppNavigation() {
         // Login de inicio de sesion
         composable(LOGIN_RUTA) {
             LoginScreen(
-                onLoginSuccess = { role ->
+                onLoginSuccess = { role, idUsuario ->
                     when (role) {
                         "Paciente" -> {
                             navController.navigate(HOME_PACIENTE_RUTA) {
@@ -48,7 +48,7 @@ fun AppNavigation() {
                             }
                         }
                         "Medico" -> {
-                            navController.navigate(HOME_MEDICO_RUTA) {
+                            navController.navigate("home_medico/$idUsuario") {
                                 popUpTo(LOGIN_RUTA) { inclusive = true }
                             }
                         }
@@ -59,6 +59,7 @@ fun AppNavigation() {
                 }
             )
         }
+
 
         // REGISTER
         composable(REGISTER_RUTA){
@@ -118,12 +119,24 @@ fun AppNavigation() {
             )
         }
 
-        composable(CITA_PACIENTES_RUTA) {
-            CitasPacienteScreen(onBack = { navController.popBackStack() })
+        composable("$GESTIONAR_PACIENTES_RUTA/{idMedico}") { back ->
+            val idMedico = back.arguments?.getString("idMedico") ?: ""
+            GestionarPacientesScreen(idMedico, onBack = { navController.popBackStack() })
         }
 
-        composable(TRATAMIENTO_PACIENTES_RUTA) {
-            TratamientoPacienteScreen (onBack = { navController.popBackStack() })
+        composable("$VER_PERFIL_MEDICO_RUTA/{idMedico}") { back ->
+            val idMedico = back.arguments?.getString("idMedico") ?: ""
+            PerfilMedicoScreen(idMedico, onBack = { navController.popBackStack() })
+        }
+
+        composable("$VER_CENTRO_MEDICO_RUTA/{idCentro}") { back ->
+            val idCentro = back.arguments?.getString("idCentro") ?: ""
+            CentroMedicoScreen(idCentro, onBack = { navController.popBackStack() })
+        }
+
+        composable("$BUSCAR_MEDICAMENTOS_RUTA/{idMedico}") { back ->
+            val idMedico = back.arguments?.getString("idMedico") ?: ""
+            BuscarMedicamentosScreen(idMedico, onBack = { navController.popBackStack() })
         }
 
         composable(VER_PERFIL_PACIENTE_RUTA) {
