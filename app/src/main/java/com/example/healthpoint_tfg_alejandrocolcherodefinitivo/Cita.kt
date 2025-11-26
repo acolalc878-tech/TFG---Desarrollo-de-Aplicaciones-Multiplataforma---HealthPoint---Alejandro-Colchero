@@ -4,6 +4,7 @@ data class Cita(
     val Id_Cita: String = "",
     val Id_usuario: String = "", // Paciente
     val Id_medico: String = "", // Medico
+    val Id_centroMedico: String = "",
     val fecha: String = "",
     val hora: String = "",
     val motivo: String = "",

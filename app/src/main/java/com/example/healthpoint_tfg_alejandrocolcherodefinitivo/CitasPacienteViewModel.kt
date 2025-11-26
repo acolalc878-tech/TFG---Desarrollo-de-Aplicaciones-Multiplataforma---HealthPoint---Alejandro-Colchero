@@ -51,7 +51,7 @@ class CitasPacienteViewModel: ViewModel() {
                             Id_Cita = doc.id,
                             Id_usuario = doc.getString("Id_usuario") ?: "",
                             Id_medico = doc.getString("Id_medico") ?: "",
-                            Id_centroMedico = doc.getString("Id_centroMedico") ?: "",
+                            Id_centroMedico = doc.getString("id_centroMedico") ?: "",
                             fecha = doc.getString("fecha") ?: "",
                             hora = doc.getString("hora") ?: "",
                             motivo = doc.getString("motivo") ?: "",

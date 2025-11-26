@@ -102,7 +102,6 @@ fun PerfilPacientesScreen(
                                 edad = u.edad,
                                 email = u.email,
                                 telefono = telefono,
-                                contraseña = u.contraseña,
                                 rol = u.rol,
                                 fechaNacimiento = fechaNac
                             )
