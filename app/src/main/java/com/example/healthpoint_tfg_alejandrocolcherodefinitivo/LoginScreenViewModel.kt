@@ -2,7 +2,6 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -16,7 +15,7 @@ class LoginScreenViewModel: ViewModel() {
     fun signInWithEmailAndPassword(
         email: String,
         password: String,
-        onLoginSuccess: (String) -> Unit,
+        onLoginSuccess: (String, String) -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
@@ -38,14 +37,22 @@ class LoginScreenViewModel: ViewModel() {
                 }
 
                 val document = snapshot.documents[0]
-                val role= document.getString("rol") ?: ""
+
+                val role = document.getString("rol") ?: ""
+                val idUsuario = document.getString("Id_usuario") ?: ""
                 if (role.isBlank()){
                     auth.signOut()
                     onError("No se encontró el rol de usuario en la base de dato")
                     return@launch
                 }
 
-                onLoginSuccess(role)
+                if (idUsuario.isBlank()){
+                    auth.signOut()
+                    onError("El usuario no tiene id")
+                    return@launch
+                }
+
+                onLoginSuccess(role, idUsuario)
             } catch (e: Exception){
                 onError(e.message ?: "Error al inicar sesion")
             }

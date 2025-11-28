@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     viewModel: LoginScreenViewModel = viewModel(),
-    onLoginSuccess: (String, Any?) -> Unit,
+    onLoginSuccess: (String, String) -> Unit,
     onCreateAccountClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
@@ -65,9 +65,9 @@ fun LoginScreen(
                     viewModel.signInWithEmailAndPassword(
                         email = email,
                         password = password,
-                        onLoginSuccess = {
+                        onLoginSuccess = { role, idUsuario ->
                             isLoading = false
-                            onLoginSuccess(it)
+                            onLoginSuccess(role, idUsuario)
                         },
                         onError = { msg ->
                             isLoading = false
