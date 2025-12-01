@@ -48,7 +48,7 @@ class CitasPacienteViewModel: ViewModel() {
                     //Si un campo esta mal, no crashea
                     try {
                         Cita(
-                            Id_Cita = doc.id,
+                            Id_cita = doc.id,
                             Id_usuario = doc.getString("Id_usuario") ?: "",
                             Id_medico = doc.getString("Id_medico") ?: "",
                             Id_centroMedico = doc.getString("id_centroMedico") ?: "",

@@ -94,7 +94,7 @@ fun CitasPacienteScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(listaCitas) { cita -> CitaCard(cita) }
+                        items(listaCitas) { cita -> CitaCardPaciente(cita) }
                     }
                 }
             }
@@ -103,7 +103,7 @@ fun CitasPacienteScreen(
 }
 
 @Composable
-fun CitaCard(cita: Cita){
+fun CitaCardPaciente(cita: Cita){
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(

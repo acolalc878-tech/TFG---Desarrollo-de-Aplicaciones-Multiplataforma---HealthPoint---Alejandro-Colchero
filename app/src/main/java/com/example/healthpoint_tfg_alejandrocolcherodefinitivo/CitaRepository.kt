@@ -12,7 +12,7 @@ class CitaRepository {
     suspend fun crearCita(cita: Cita): Boolean {
         return try{
             val docRef = citasReferencia.document()
-            val citaConId = cita.copy(Id_Cita = docRef.id)
+            val citaConId = cita.copy(Id_cita = docRef.id)
             docRef.set(citaConId).await()
             true
         } catch (e:Exception){
@@ -23,7 +23,7 @@ class CitaRepository {
     // Para editar la cita con corrutina
     suspend fun editarCira(cita: Cita): Boolean {
         return try{
-            citasReferencia.document(cita.Id_Cita).set(cita).await()
+            citasReferencia.document(cita.Id_cita).set(cita).await()
             true
         } catch (e:Exception){
             false
