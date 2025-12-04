@@ -25,32 +25,41 @@ class GestionCitasViewModel: ViewModel() {
     fun cargarCitasMedico(idMedico: String) {
         _loading.value = true
 
-        db.collection("Cita").whereEqualTo("Id_medico", idMedico)
-            .addSnapshotListener{value, error ->
-                if(error != null) {
-                    _mensaje.value = "Error al cargar las citas"
-                    _loading.value = false
-                    return@addSnapshotListener
-                }
-
-                if(value != null) {
-                    _citas.value = value.documents.map { doc ->
-                        Cita(
-                            Id_cita = doc.id,
-                            Id_usuario = doc.getString("Id_usuario")?: "",
-                            Id_medico = idMedico,
-                            Id_centroMedico = doc.getString("Id_centroMedico")?: "",
-                            fecha = doc.getString("fecha")?: "",
-                            hora = doc.getString("hora")?: "",
-                            motivo = doc.getString("motivo")?: "",
-                            estado = doc.getString("estado")?: "",
-                            notasMedico = doc.getString("notasMedico")?: ""
-                        )
-                    }
-                }
-
+        db.collection("Cita").addSnapshotListener{ value, error ->
+            if(error != null) {
+                _mensaje.value = "Error al cargar las citas"
                 _loading.value = false
+                return@addSnapshotListener
             }
+
+            if(value != null) {
+                _citas.value = value.documents.mapNotNull { doc ->
+                    val medicoCampo = when {
+                        doc.contains("Id_medico") -> doc.getString("Id_medico")
+                        doc.contains("idMedico") -> doc.getString("idMedico")
+                        doc.contains("id_medico") -> doc.getString("id_medico")
+                        doc.contains("Id_Medico") -> doc.getString("Id_Medico")
+                        else -> null
+                    }
+
+                    if (medicoCampo != idMedico) return@mapNotNull null
+
+                    Cita(
+                        Id_cita = doc.id,
+                        Id_usuario = doc.getString("Id_usuario") ?: "",
+                        Id_medico = medicoCampo ?: "",
+                        Id_centroMedico = doc.getString("Id_centroMedico") ?: "",
+                        fecha = doc.getString("fecha") ?: "",
+                        hora = doc.getString("hora") ?: "",
+                        motivo = doc.getString("motivo") ?: "",
+                        estado = doc.getString("estado") ?: "",
+                        notasMedico = doc.getString("notasMedico") ?: ""
+                    )
+                }
+            }
+
+            _loading.value = false
+        }
     }
 
     // Crear cita

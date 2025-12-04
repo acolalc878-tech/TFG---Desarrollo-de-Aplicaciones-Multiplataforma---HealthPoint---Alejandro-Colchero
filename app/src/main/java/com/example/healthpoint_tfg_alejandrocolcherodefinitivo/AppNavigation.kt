@@ -31,13 +31,17 @@ fun AppNavigation() {
 
 
     NavHost(navController = navController, startDestination = SPLASH_RUTA) {
+
         // Splash Screen
         composable(SPLASH_RUTA) {
-            SplashScreen(onFinished = { navController.navigate(LOGIN_RUTA) {
-                    popUpTo(SPLASH_RUTA) { inclusive = true }}})
+            SplashScreen(onFinished = {
+                navController.navigate(LOGIN_RUTA) {
+                    popUpTo(SPLASH_RUTA) { inclusive = true }
+                }
+            })
         }
 
-        // Login de inicio de sesion
+        // LOGIN
         composable(LOGIN_RUTA) {
             LoginScreen(
                 onLoginSuccess = { role, idUsuario ->
@@ -60,12 +64,10 @@ fun AppNavigation() {
             )
         }
 
-
         // REGISTER
-        composable(REGISTER_RUTA){
+        composable(REGISTER_RUTA) {
             RegistrerScreen(
                 onRegisterSuccess = {
-                    // Al apuntar a login aseguramos que el usuario no queda logueado automáticamente
                     navController.navigate(LOGIN_RUTA) {
                         popUpTo(REGISTER_RUTA) { inclusive = true }
                     }
@@ -73,21 +75,23 @@ fun AppNavigation() {
             )
         }
 
-        // Home Pacientes
+        // HOME PACIENTE
         composable(HOME_PACIENTE_RUTA) {
             HomePacienteScreen(
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
-                    navController.navigate(LOGIN_RUTA) {popUpTo(HOME_PACIENTE_RUTA) {inclusive = true} }
+                    navController.navigate(LOGIN_RUTA) {
+                        popUpTo(HOME_PACIENTE_RUTA) { inclusive = true }
+                    }
                 },
-                onVerCita = {navController.navigate(CITA_PACIENTES_RUTA)},
-                onVerTratamientos = {navController.navigate(TRATAMIENTO_PACIENTES_RUTA)},
-                onVerPerfil = {navController.navigate(VER_PERFIL_PACIENTE_RUTA)},
-                onVerHistorial = {/**/}
+                onVerCita = { navController.navigate(CITA_PACIENTES_RUTA) },
+                onVerTratamientos = { navController.navigate(TRATAMIENTO_PACIENTES_RUTA) },
+                onVerPerfil = { navController.navigate(VER_PERFIL_PACIENTE_RUTA) },
+                onVerHistorial = {}
             )
         }
 
-        // Home Medico
+        // HOME MEDICO
         composable(HOME_MEDICO_RUTA) {
             HomeMedicoScreen(
                 idUsuario = FirebaseAuth.getInstance().currentUser?.uid ?: "",
@@ -119,6 +123,14 @@ fun AppNavigation() {
             )
         }
 
+        composable("$GESTIONAR_CITAS_RUTA/{idMedico}") { back ->
+            val idMedico = back.arguments?.getString("idMedico") ?: ""
+            GestionarCitasScreen(
+                idMedico = idMedico,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable("$GESTIONAR_PACIENTES_RUTA/{idMedico}") { back ->
             val idMedico = back.arguments?.getString("idMedico") ?: ""
             GestionarPacientesScreen(idMedico, onBack = { navController.popBackStack() })
@@ -136,12 +148,11 @@ fun AppNavigation() {
 
         composable("$BUSCAR_MEDICAMENTOS_RUTA/{idMedico}") { back ->
             val idMedico = back.arguments?.getString("idMedico") ?: ""
-            BuscarMedicamentosScreen(idMedico, onBack = { navController.popBackStack() })
+            BuscarMedicamentosScreen(onBack = { navController.popBackStack() })
         }
 
         composable(VER_PERFIL_PACIENTE_RUTA) {
-            PerfilPacientesScreen (onBack = { navController.popBackStack() })
+            PerfilPacientesScreen(onBack = { navController.popBackStack() })
         }
-
     }
 }

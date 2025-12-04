@@ -1,9 +1,7 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
 class MedicoViewModel(
     private val citaRepo: CitaRepository = CitaRepository(),
@@ -22,7 +20,6 @@ class MedicoViewModel(
     // Id_medico resuelto (nulo si no se ha resuelto aun)
     var currentMedicoId: String? = null
         private set
-
 
     // Cargamos citas asignadas del medico
     fun cargarMedicoPorUsuario(idUsuario: String) {
@@ -48,55 +45,6 @@ class MedicoViewModel(
         citaRepo.obtenerCitasPorMedico(idMedico) { lista ->
             citasMedico.value = lista
             loading.value = false
-        }
-    }
-
-    // Crear cita
-    fun crearCita(cita: Cita) {
-        viewModelScope.launch {
-            try {
-                loading.value = true
-                citaRepo.crearCita(cita)
-                // refrescar
-                cargarCitasAsignadasMedico(cita.Id_medico)
-            } catch (e: Exception) {
-                error.value = "Error al crear cita: ${e.message}"
-                loading.value = false
-            }
-        }
-    }
-
-    // Editar cita (suspend fn en repo)
-    fun editarCita(cita: Cita) {
-        viewModelScope.launch {
-            try {
-                loading.value = true
-                citaRepo.editarCira(cita)
-                cargarCitasAsignadasMedico(cita.Id_medico)
-            } catch (e: Exception) {
-                error.value = "Error al editar cita: ${e.message}"
-                loading.value = false
-            }
-        }
-    }
-
-    // Cambiar estado
-    fun cambiarEstadoCita(idCita: String, nuevoEstado: String, idMedico: String) {
-        viewModelScope.launch {
-            try {
-                loading.value = true
-                citaRepo.actualizarEstado(idCita, nuevoEstado)
-                cargarCitasAsignadasMedico(idMedico)
-            } catch (e: Exception) {
-                error.value = "Error al actualizar estado: ${e.message}"
-                loading.value = false
-            }
-        }
-    }
-
-    fun buscarPacientesNombre(nombre: String) {
-        usuarioRepo.buscarPacientesPorNombre(nombre) { lista ->
-            pacientesEncontrados.value = lista
         }
     }
 }

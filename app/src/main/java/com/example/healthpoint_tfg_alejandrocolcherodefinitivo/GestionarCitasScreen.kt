@@ -1,121 +1,117 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GestionCitasScreen(
+fun GestionarCitasScreen(
     idMedico: String,
     onBack: () -> Unit,
     viewModel: GestionCitasViewModel = viewModel()
 ) {
+
     LaunchedEffect(idMedico) {
         viewModel.cargarCitasMedico(idMedico)
     }
 
     val citas by viewModel.citas.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val mensaje by viewModel.mensaje.collectAsState()
 
     var showCrearDialog by remember { mutableStateOf(false) }
-    var showEditarDialog by remember { mutableStateOf<Cita?>(null) }
-    var showEliminarDialog by remember { mutableStateOf(false) }
+    var citaAEditar by remember { mutableStateOf<Cita?>(null) }
+    var citaAEliminar by remember { mutableStateOf<Cita?>(null) }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Gestion de citas") }
+            TopAppBar(
+                title = { Text("Gestión de citas") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                }
             )
         }
     ) { padding ->
-
         Column(
-            modifier = Modifier
+            Modifier
                 .padding(padding)
                 .padding(16.dp)
-                .fillMaxSize()
         ) {
-        }
-        // Botones de accion
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Button(onClick = { showCrearDialog = true }) { Text("Crear Cita") }
-            Button(onClick = { showEliminarDialog = true }) { Text("Eliminar Cita") }
-        }
 
-        Spacer(modifier = Modifier.height(10.dp))
+            // Botón crear cita
+            Button(onClick = { showCrearDialog = true }) {
+                Text("Crear nueva cita")
+            }
 
-        // Lista de citas
-        Text(
-            "Citas de medico",
-            style = MaterialTheme.typography.titleMedium
-        )
-        Spacer(modifier = Modifier.height(6.dp))
+            Spacer(Modifier.height(16.dp))
 
-        if (loading) {
-            CircularProgressIndicator()
-        } else {
-            LazyColumn {
-                items(citas) { cita ->
-                    CitaCard(
+            if (citas.isEmpty()) {
+                Text("No hay citas registradas")
+            } else {
+                citas.forEach { cita ->
+                    CitasCardScreen(
                         cita = cita,
-                        onDelete = { viewModel.eliminarCita(cita.Id_cita) },
-                        onEdit = { showEditarDialog = cita }
+                        onEdit = { citaAEditar = cita },
+                        onDelete = { citaAEliminar = cita }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(Modifier.height(12.dp))
                 }
             }
         }
     }
 
-    // Mensaje SnackBar
-    if (mensaje.isNotEmpty()) {
-        Toast.makeText(LocalContext.current, mensaje, Toast.LENGTH_SHORT).show()
-    }
-
-    // Dialogos
+    // DIALOG CREAR
     if (showCrearDialog) {
-        CrearCitaDialog(
-            idMedico = idMedico,
+        FormCitaDialog(
+            titulo = "Crear nueva cita",
+            citaInicial = Cita(
+                Id_usuario = "",
+                Id_medico = idMedico,
+                Id_centroMedico = "",
+                fecha = "",
+                hora = "",
+                motivo = "",
+                estado = "Pendiente",
+                notasMedico = ""
+            ),
             onDismiss = { showCrearDialog = false },
-            onCrear = { viewModel.crearCita(it); showCrearDialog = false }
+            onSubmit = { nuevaCita ->
+                viewModel.crearCita(nuevaCita)
+                showCrearDialog = false
+            }
         )
     }
 
-    showEditarDialog?.let { cita ->
-        EditarCitaDialog(
-            cita = cita,
-            onDismiss = { showEditarDialog = null },
-            onGuardar = { viewModel.editarCita(it); showEditarDialog = null }
+    // DIALOG EDITAR
+    citaAEditar?.let { cita ->
+        FormCitaDialog(
+            titulo = "Editar cita",
+            citaInicial = cita,
+            onDismiss = { citaAEditar = null },
+            onSubmit = { citaEditada ->
+                viewModel.editarCita(citaEditada)
+                citaAEditar = null
+            }
         )
     }
 
-    if (showEliminarDialog) {
-        EliminarCitaDialog(
-            citas = citas,
-            onDismiss = { showEliminarDialog = false },
-            onDelete = {
-                viewModel.eliminarCita(it.Id_cita)
-                showEliminarDialog = false
+    // DIALOG ELIMINAR
+    citaAEliminar?.let { cita ->
+        ConfirmarEliminarDialog(
+            onDismiss = { citaAEliminar = null },
+            onConfirm = {
+                viewModel.eliminarCita(cita.Id_cita)
+                citaAEliminar = null
             }
         )
     }
@@ -123,33 +119,152 @@ fun GestionCitasScreen(
 
 
 @Composable
-fun CitaCard(
+fun CitasCardScreen(
     cita: Cita,
-    onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF3FF))
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text("Fecha: ${cita.fecha}", style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.padding(16.dp)) {
+
+            Text("Fecha: ${cita.fecha}")
             Text("Hora: ${cita.hora}")
             Text("Motivo: ${cita.motivo}")
             Text("Estado: ${cita.estado}")
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onEdit) { Text("Editar") }
-                TextButton(onClick = onDelete, colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)) {
-                    Text("Eliminar")
-                }
+            Spacer(Modifier.height(16.dp))
+
+            Row {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onEdit
+                ) { Text("Editar") }
+
+                Spacer(Modifier.width(8.dp))
+
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onDelete
+                ) { Text("Borrar") }
             }
         }
     }
 }
+
+@Composable
+fun FormCitaDialog(
+    titulo: String,
+    citaInicial: Cita,
+    onDismiss: () -> Unit,
+    onSubmit: (Cita) -> Unit
+) {
+    var idUsuario by remember { mutableStateOf(citaInicial.Id_usuario) }
+    var idCentro by remember { mutableStateOf(citaInicial.Id_centroMedico) }
+    var fecha by remember { mutableStateOf(citaInicial.fecha) }
+    var hora by remember { mutableStateOf(citaInicial.hora) }
+    var motivo by remember { mutableStateOf(citaInicial.motivo) }
+    var estado by remember { mutableStateOf(citaInicial.estado) }
+    var notas by remember { mutableStateOf(citaInicial.notasMedico) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(titulo) },
+        text = {
+            Column {
+
+                OutlinedTextField(
+                    value = idUsuario,
+                    onValueChange = { idUsuario = it },
+                    label = { Text("ID Usuario") }
+                )
+
+                OutlinedTextField(
+                    value = idCentro,
+                    onValueChange = { idCentro = it },
+                    label = { Text("ID Centro médico") }
+                )
+
+                OutlinedTextField(
+                    value = fecha,
+                    onValueChange = { fecha = it },
+                    label = { Text("Fecha") }
+                )
+
+                OutlinedTextField(
+                    value = hora,
+                    onValueChange = { hora = it },
+                    label = { Text("Hora") }
+                )
+
+                OutlinedTextField(
+                    value = motivo,
+                    onValueChange = { motivo = it },
+                    label = { Text("Motivo") }
+                )
+
+                OutlinedTextField(
+                    value = estado,
+                    onValueChange = { estado = it },
+                    label = { Text("Estado") }
+                )
+
+                OutlinedTextField(
+                    value = notas,
+                    onValueChange = { notas = it },
+                    label = { Text("Notas del médico") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSubmit(
+                    citaInicial.copy(
+                        Id_usuario = idUsuario,
+                        Id_centroMedico = idCentro,
+                        fecha = fecha,
+                        hora = hora,
+                        motivo = motivo,
+                        estado = estado,
+                        notasMedico = notas
+                    )
+                )
+            }) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun ConfirmarEliminarDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Eliminar cita") },
+        text = { Text("¿Seguro que quieres eliminar esta cita?") },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Eliminar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
 
 @Composable
 fun CrearCitaDialog(
@@ -235,6 +350,25 @@ fun EditarCitaDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar")} }
     )
 }
+
+@Composable
+fun EliminarCitaDialog(
+    cita: Cita,
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Eliminar cita")},
+        text = {Text("¿Seguro que quiereseliminar esta cita del día ${cita.fecha}?")},
+        confirmButton = {
+            Button(onClick = onDelete) { Text("Eliminar")}
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) { Text("Cancelar") }
+        }    )
+}
+
 
 @Composable
 fun DropdownMenuEstado(

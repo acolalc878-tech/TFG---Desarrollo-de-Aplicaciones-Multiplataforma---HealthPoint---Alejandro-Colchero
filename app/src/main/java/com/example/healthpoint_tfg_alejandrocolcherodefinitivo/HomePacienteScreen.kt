@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -128,7 +127,7 @@ fun detallesCitaCard(cita: CitaResumen) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("${cita.fecha}", style = MaterialTheme.typography.titleMedium)
             Text("${cita.hora}")
-            Text("👨‍⚕${cita.medico}")
+            Text("⚕${cita.medico}")
             Text("Estado: ${cita.estado}", color = MaterialTheme.colorScheme.primary)
         }
     }
