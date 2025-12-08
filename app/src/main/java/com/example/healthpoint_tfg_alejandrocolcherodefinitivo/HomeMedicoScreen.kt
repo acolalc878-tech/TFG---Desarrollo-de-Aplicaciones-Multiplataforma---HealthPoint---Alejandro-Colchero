@@ -19,7 +19,7 @@ fun HomeMedicoScreen(
     viewModel: MedicoViewModel = viewModel(),
     onLogout: () -> Unit,
     onGestionarPacientes: (String) -> Unit,
-    onGestionarCitas: (String) -> Unit,
+    onGestionarCitas: (idMedico: String) -> Unit,
     onGestionarTratamientos: (String) -> Unit,
     onVerCentro: (String) -> Unit,
     onVerPerfil: (String) -> Unit,
@@ -98,7 +98,7 @@ fun HomeMedicoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = { onGestionarCitas(idMedico) }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { onGestionarCitas(idUsuario) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Gestionar Citas")
             }
 
@@ -139,7 +139,6 @@ fun HomeMedicoScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("Error")
             }
-
         }
     }
 }

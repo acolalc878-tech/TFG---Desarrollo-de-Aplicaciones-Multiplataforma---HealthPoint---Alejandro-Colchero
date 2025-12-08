@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class MedicoViewModel(
     private val citaRepo: CitaRepository = CitaRepository(),
-    private val usuarioRepo: UsuarioRepository = UsuarioRepository(),
     private val medicoRepository: MedicoRepository = MedicoRepository()
 ) : ViewModel() {
 

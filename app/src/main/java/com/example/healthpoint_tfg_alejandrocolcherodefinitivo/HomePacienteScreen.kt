@@ -2,7 +2,6 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
@@ -10,6 +9,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,10 +18,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.graphics.vector.ImageVector
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePacienteScreen(
+    idPaciente: String,
     onLogout: () -> Unit,
     onVerCita: () -> Unit,
     onVerHistorial: () -> Unit,
@@ -28,10 +36,16 @@ fun HomePacienteScreen(
     onVerPerfil: () -> Unit
 ) {
 
-    // Estado de la pestaña activa
-    var selectedIndex by remember { mutableStateOf(0)}
+    val viewModel:  CitasPacienteViewModel = viewModel()
+    val citas by viewModel.citas.collectAsState()
 
-    val items = listOf(
+    LaunchedEffect(idPaciente) {
+        viewModel.cargarCitasPorUsuario(idPaciente)
+    }
+
+    var selectedIndex by remember { mutableStateOf(0) }
+
+    val bottomItems = listOf(
         BottomItem("Inicio", Icons.Default.Home),
         BottomItem("Citas", Icons.Default.DateRange),
         BottomItem("Tratamientos", Icons.Default.Favorite),
@@ -49,86 +63,75 @@ fun HomePacienteScreen(
                 }
             )
         },
-
         bottomBar = {
             NavigationBar {
-                items.forEachIndexed{index, item ->
+                bottomItems.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = selectedIndex == index,
                         onClick = {
                             selectedIndex = index
-
-                            when(index) {
+                            when (index) {
                                 1 -> onVerCita()
                                 2 -> onVerTratamientos()
                                 3 -> onVerPerfil()
                             }
                         },
-                        icon = { Icon(item.icon, contentDescription = item.label)},
-                        label = { Text(item.label)}
+                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        label = { Text(item.label) }
                     )
                 }
             }
         },
         containerColor = Color.White
+
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-        ) {
-
+            ) {
             // Titulo para citas
             Text(
-                text = "Tus proximas citas...",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
+                text = "Tus próximas citas",
+                style = MaterialTheme.typography.headlineSmall
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            val ejemploCitas = List(3) { index ->
-                CitaResumen(
-                    fecha = "22/10/2026",
-                    hora = "10:20 AM",
-                    medico = "Dr.Alejandro Colchero",
-                    estado = "Confirmada"
-                )
-            }
-
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                items(ejemploCitas) { cita ->
-                    detallesCitaCard(cita)
+            if (citas.isEmpty()) {
+                Text("No tienes citas asignadas.")
+            } else {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(citas) { cita ->
+                        detallesCitaCard(
+                            fecha = cita.fecha,
+                            hora = cita.hora,
+                            medico = cita.Id_medico,
+                            estado = cita.estado
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-data class BottomItem(
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
-)
-
-data class CitaResumen(
-    val fecha: String,
-    val hora: String,
-    val medico: String,
-    val estado: String
-)
-
 @Composable
-fun detallesCitaCard(cita: CitaResumen) {
+fun detallesCitaCard(fecha: String, hora: String, medico: String, estado: String) {
     Card(
         modifier = Modifier.width(200.dp),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("${cita.fecha}", style = MaterialTheme.typography.titleMedium)
-            Text("${cita.hora}")
-            Text("⚕${cita.medico}")
-            Text("Estado: ${cita.estado}", color = MaterialTheme.colorScheme.primary)
+            Text(fecha, style = MaterialTheme.typography.titleMedium)
+            Text(hora)
+            Text("Médico: $medico")
+            Text("Estado: $estado")
         }
     }
 }
+
+data class BottomItem(
+    val label: String,
+    val icon: ImageVector
+)

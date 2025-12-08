@@ -1,13 +1,23 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo
 
+
+
 import androidx.lifecycle.ViewModel
+
 import androidx.lifecycle.viewModelScope
+
 import com.google.firebase.firestore.FirebaseFirestore
+
 import kotlinx.coroutines.flow.MutableStateFlow
+
 import kotlinx.coroutines.flow.StateFlow
+
 import kotlinx.coroutines.launch
 
+
+
 class GestionCitasViewModel: ViewModel() {
+
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -24,15 +34,14 @@ class GestionCitasViewModel: ViewModel() {
     // Carga en tiempo real
     fun cargarCitasMedico(idMedico: String) {
         _loading.value = true
-
-        db.collection("Cita").addSnapshotListener{ value, error ->
-            if(error != null) {
+        db.collection("Cita").addSnapshotListener { value, error ->
+            if (error != null) {
                 _mensaje.value = "Error al cargar las citas"
                 _loading.value = false
                 return@addSnapshotListener
             }
 
-            if(value != null) {
+            if (value != null) {
                 _citas.value = value.documents.mapNotNull { doc ->
                     val medicoCampo = when {
                         doc.contains("Id_medico") -> doc.getString("Id_medico")
@@ -57,40 +66,38 @@ class GestionCitasViewModel: ViewModel() {
                     )
                 }
             }
-
             _loading.value = false
         }
     }
+
 
     // Crear cita
     fun crearCita(cita: Cita) {
         viewModelScope.launch {
             _loading.value = true
-
             val referencia = db.collection("Cita").document()
             val nuevaCita = cita.copy(Id_cita = referencia.id)
-
             referencia.set(nuevaCita)
                 .addOnSuccessListener { _mensaje.value = "Cita Creada" }
                 .addOnFailureListener { _mensaje.value = "Error al crear la cita" }
-
             _loading.value = false
         }
+
     }
 
+
     // Editar la cita
-    fun editarCita(cita: Cita){
+    fun editarCita(cita: Cita) {
         viewModelScope.launch {
             _loading.value = true
-
             db.collection("Cita").document(cita.Id_cita)
                 .set(cita)
                 .addOnSuccessListener { _mensaje.value = "Cita actualizada" }
                 .addOnFailureListener { _mensaje.value = "Error al actualizar la cita" }
-
             _loading.value = false
         }
     }
+
 
     // Cambiar estado
     fun cambiarEstado(idCita: String, nuevoEstado: String) {
@@ -105,6 +112,7 @@ class GestionCitasViewModel: ViewModel() {
             _loading.value = false
         }
     }
+
 
     // Eliminar
     fun eliminarCita(id: String) {

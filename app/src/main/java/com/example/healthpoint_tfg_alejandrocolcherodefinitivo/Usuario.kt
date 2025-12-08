@@ -6,6 +6,7 @@ data class Usuario(
     val apellido: String = "",
     val edad: Int = 0,
     val email: String = "",
+    val dni: String = "",
     val telefono: String = "",
     val rol: String = "", // "Paciente" o "Medico"
     val fechaNacimiento: String = ""

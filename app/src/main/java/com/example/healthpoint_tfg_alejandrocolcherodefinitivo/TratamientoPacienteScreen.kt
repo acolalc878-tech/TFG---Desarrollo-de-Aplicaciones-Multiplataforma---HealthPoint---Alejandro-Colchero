@@ -30,17 +30,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TratamientoPacienteScreen(
-    viewModel: TratamientosPacienteViewModel = viewModel(),
+    viewModel: TratamientosMedicoViewModel = viewModel(),
     onBack: () -> Unit
 ) {
     val tratamientos by viewModel.tratamientos.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(Unit) {viewModel.cargarTratamientos()}
+    LaunchedEffect(Unit) {viewModel.cargarTratamientosPorCita()}
 
     Scaffold(topBar = {
         TopAppBar(title = {Text("Mis Tratamientos")}, navigationIcon = {
@@ -48,10 +48,10 @@ fun TratamientoPacienteScreen(
         })
     }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            Crossfade(targetState = Triple(loading, tratamientos, error)) { (isLoading, lista, err) ->
+            Crossfade(targetState = Triple(loading, tratamientos, error)) { (isLoading, lista, error) ->
                 when {
                     isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator()}
-                    err !=  null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(err ?: "")}
+                    error !=  null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(error ?: "")}
                     lista.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No tienes tratamientos")}
                     else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(lista) { t -> TratamientoCard(t)}
@@ -71,4 +71,4 @@ fun TratamientoCard(t: Tratamiento) {
             Text("Indicaciones: ${t.indicaciones}")
         }
     }
-}
+}*/

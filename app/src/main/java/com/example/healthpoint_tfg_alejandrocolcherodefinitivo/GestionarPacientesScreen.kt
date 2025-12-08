@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ fun GestionarPacientesScreen(
     idMedico: String,
     onBack: () -> Unit,
     viewModel: GestionarPacientesViewModel = viewModel()
+
 ) {
     val pacientes = viewModel.pacientes
     val busqueda = viewModel.busqueda
@@ -42,11 +44,11 @@ fun GestionarPacientesScreen(
                 }
             )
         }
+
     ) { padding ->
         Column(
             modifier = Modifier.padding(padding).padding(16.dp)
         ) {
-
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = { viewModel.actualizarBusqueda(it) },

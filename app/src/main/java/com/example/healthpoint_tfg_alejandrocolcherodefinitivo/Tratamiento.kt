@@ -5,5 +5,8 @@ data class Tratamiento(
     val Id_cita: String = "",
     val descripcion: String = "",
     val duracionDias: Int = 0,
-    val indicaciones: String = ""
+    val indicaciones: String = "",
+    val fechaInicio: String = "",
+    val fechaFin: String = "",
+    val estado: String = ""
 )
