@@ -6,7 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.theme.HealthPointTFGALEJANDROCOLCHERODEFINITIVOTheme
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.navigation.AppNavigation
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.theme.HealthPointTFGALEJANDROCOLCHERODEFINITIVOTheme
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
