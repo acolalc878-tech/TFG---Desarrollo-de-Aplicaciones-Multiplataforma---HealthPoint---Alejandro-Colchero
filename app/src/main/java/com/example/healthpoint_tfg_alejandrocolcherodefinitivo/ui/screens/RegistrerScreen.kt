@@ -1,4 +1,4 @@
-package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel
+package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.RegistrerScreenViewModel
 
 @Composable
 fun RegistrerScreen(

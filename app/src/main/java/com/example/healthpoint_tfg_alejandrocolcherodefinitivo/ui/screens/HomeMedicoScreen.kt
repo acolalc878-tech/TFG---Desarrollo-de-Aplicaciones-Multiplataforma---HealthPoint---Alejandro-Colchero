@@ -1,6 +1,17 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,6 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.MedicoViewModel
@@ -22,7 +37,6 @@ fun HomeMedicoScreen(
     onGestionarPacientes: (String) -> Unit,
     onGestionarCitas: (idMedico: String) -> Unit,
     onGestionarTratamientos: (String) -> Unit,
-    onVerCentro: (String) -> Unit,
     onVerPerfil: (String) -> Unit,
     onBuscarMedicamentos: (String) -> Unit
 ) {
@@ -32,21 +46,39 @@ fun HomeMedicoScreen(
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val idMedico = medicoState?.Id_medico ?: ""
+
     // Cargar datos del medico al entrar (resuelve Id_medico)
     LaunchedEffect(idUsuario) {
         viewModel.cargarMedicoPorUsuario(idUsuario)
     }
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC),
         topBar = {
             TopAppBar(
-                title = { Text("HealthPoint - Médico") },
+                title = {
+                    Text(
+                        "HealthPoint - Médico",
+                        color = surfaceColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor
+                ),
                 actions = {
-                    TextButton(onClick = {
+                    IconButton(onClick = {
                         FirebaseAuth.getInstance().signOut()
                         onLogout()
                     }) {
-                        Text("Cerrar Sesión", color = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.ExitToApp,
+                            contentDescription = "Cerrar sesión",
+                            tint = surfaceColor
+                        )
                     }
                 }
             )
@@ -58,88 +90,136 @@ fun HomeMedicoScreen(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = primaryColor)
             }
             return@Scaffold
         }
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentPadding = PaddingValues(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            val nombreVisible = medicoState?.nombre ?: "Doctor/a"
+            item {
+                val nombreVisible = medicoState?.nombre ?: "Medico"
+                val apellidosVisible = medicoState?.apellidos ?: ""
 
+                Text(
+                    "$nombreVisible $apellidosVisible",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = primaryColor
+                )
 
-            Text(
-                "Bienvenid@, $nombreVisible",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    "Menú de Acciones Rápidas",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Tarjetas de accion de cuadricula
+            val actions = listOf(
+                ActionItem(
+                    label = "Gestionar Pacientes",
+                    icon = Icons.Default.Person,
+                    onClick = { onGestionarPacientes(idMedico) }
+                ),
+
+                ActionItem(
+                    label = "Gestionar Citas",
+                    icon = Icons.Default.DateRange,
+                    onClick = { onGestionarCitas(idUsuario) }
+                ),
+
+                ActionItem(
+                    label = "Gestionar Tratamientos",
+                    icon = Icons.Default.Favorite,
+                    onClick = { onGestionarTratamientos(idMedico) }
+                ),
+
+                ActionItem(
+                    label = "Buscar Medicamentos",
+                    icon = Icons.Default.Search,
+                    onClick = { onBuscarMedicamentos(idMedico) }
+                ),
+
+                ActionItem(
+                    label = "Ver perfil y centro médico",
+                    icon = Icons.Default.Person,
+                    onClick = { onVerPerfil(idMedico) }
+                )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text("Seleccione qué desea gestionar:", style = MaterialTheme.typography.bodyMedium)
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            val idMedico = medicoState?.Id_medico ?: ""
-
-            // Botones de acciones
-            Button(
-                onClick = { onGestionarPacientes(idMedico) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Gestionar Pacientes")
+            items(actions) { item ->
+                ActionCard(item)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = { onGestionarCitas(idUsuario) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Gestionar Citas")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { onGestionarTratamientos(idMedico) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Gestionar Tratamientos")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { onVerCentro(medicoState?.Id_CentroMedico ?: "") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Información del centro médico asignado")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { onBuscarMedicamentos(idMedico) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Buscar Medicamentos")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = { onVerPerfil(idMedico) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Ver Perfil")
-            }
-
-            error?.let {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Error")
+            item {
+                error?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Error de carga: $it",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
 }
+
+@Composable
+fun ActionCard(item: ActionItem){
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = item.onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically){
+                Icon(
+                    item.icon,
+                    contentDescription = item.label,
+                    tint = primaryColor,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    item.label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Icon(
+                Icons.Default.ArrowForward,
+                contentDescription = null,
+                tint = primaryColor.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+data class ActionItem(
+    val label: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)

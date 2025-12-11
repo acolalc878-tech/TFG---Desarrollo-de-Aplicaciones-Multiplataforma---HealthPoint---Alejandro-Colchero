@@ -18,7 +18,7 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.Perfil
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.PerfilPacientesScreen
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.SplashScreen
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.TratamientoPacienteScreen
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.RegistrerScreen
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.RegistrerScreen
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -106,7 +106,7 @@ fun AppNavigation() {
                 onVerPerfil = { navController.navigate("perfil_paciente/$idUsuario") },
             )
         }
-        
+
         // HOME MEDICO
         composable(HOME_MEDICO_RUTA) { backStackEntry ->
 
@@ -191,13 +191,17 @@ fun AppNavigation() {
         // GESTIONAR PACIENTES
         composable("$GESTIONAR_PACIENTES_RUTA/{idMedico}") { back ->
             val idMedico = back.arguments?.getString("idMedico") ?: ""
-            GestionarPacientesScreen(idMedico, onBack = { navController.popBackStack() })
+
+            GestionarPacientesScreen(
+                onBack = { navController.popBackStack() })
         }
 
         // VER EL PERFIL DEL MEDICO
         composable("$VER_PERFIL_MEDICO_RUTA/{idMedico}") { back ->
             val idMedico = back.arguments?.getString("idMedico") ?: ""
-            PerfilMedicoScreen(idMedico, onBack = { navController.popBackStack() })
+            PerfilMedicoScreen(
+                idMedico = idMedico,
+                onBack = { navController.popBackStack() })
         }
 
         // VER EL CENTRO MEDICO

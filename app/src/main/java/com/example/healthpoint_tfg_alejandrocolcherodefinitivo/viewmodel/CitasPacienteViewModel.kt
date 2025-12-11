@@ -1,17 +1,24 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.MedicoRepository
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.CitaDisplay
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class CitasPacienteViewModel: ViewModel() {
+class CitasPacienteViewModel(
+    private val medicoRepo: MedicoRepository = MedicoRepository()
+): ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
-    private val _citas = MutableStateFlow<List<Cita>>(emptyList())
-    val citas: StateFlow<List<Cita>> = _citas
+    private val _citas = MutableStateFlow<List<CitaDisplay>>(emptyList())
+    val citas: StateFlow<List<CitaDisplay>> = _citas
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
@@ -34,10 +41,24 @@ class CitasPacienteViewModel: ViewModel() {
                 }
 
                 if (snapshot != null) {
-                    val lista = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(Cita::class.java)?.copy(id_cita = doc.id)
+                    viewModelScope.launch {
+                        val citasNormales = snapshot.documents.mapNotNull { doc ->
+                            doc.toObject(Cita::class.java)?.copy(id_cita = doc.id)
+                        }
+
+                        val citasConNombre = citasNormales.map { cita ->
+                            val medico = medicoRepo.obtenerMedicoPorId(cita.id_medico)
+
+                            val nombreCompleto = "${medico?.nombre ?: "Médico"} ${medico?.apellidos ?: "Desconocido"}"
+
+                            CitaDisplay(
+                                cita = cita,
+                                nombreMedico = nombreCompleto
+                            )
+                        }
+
+                        _citas.value = citasConNombre
                     }
-                    _citas.value = lista
                 }
                 _loading.value = false
             }

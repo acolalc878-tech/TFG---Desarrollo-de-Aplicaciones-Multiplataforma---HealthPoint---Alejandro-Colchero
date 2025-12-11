@@ -1,5 +1,6 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
@@ -22,7 +23,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.CitasPacienteViewModel
 
 
@@ -39,6 +46,10 @@ fun HomePacienteScreen(
     val viewModel: CitasPacienteViewModel = viewModel()
     val citas by viewModel.citas.collectAsState()
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val onSurfaceColor = MaterialTheme.colorScheme.error
+
     LaunchedEffect(idUsuario) {
         viewModel.cargarCitasPorUsuario(idUsuario)
     }
@@ -53,18 +64,36 @@ fun HomePacienteScreen(
     )
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC),
         topBar = {
             TopAppBar(
-                title = { Text("HealthPoint - Paciente") },
+                title = {
+                    Text(
+                        "HealthPoint - Paciente",
+                        color = surfaceColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                        },
+
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor
+                ),
                 actions = {
                     TextButton(onClick = onLogout) {
-                        Text("Cerrar sesión", color = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.ExitToApp,
+                            contentDescription = "Cerrar sesión",
+                            tint = surfaceColor
+                        )
                     }
                 }
             )
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = surfaceColor,
+                tonalElevation = 4.dp
+            ) {
                 bottomItems.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = selectedIndex == index,
@@ -77,36 +106,55 @@ fun HomePacienteScreen(
                             }
                         },
                         icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) }
+                        label = { Text(item.label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = primaryColor,
+                            selectedTextColor = primaryColor,
+                            indicatorColor = primaryColor.copy(alpha = 0.1f)
+                        )
                     )
                 }
             }
         },
-        containerColor = Color.White
-
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             ) {
+
+            Spacer(Modifier.height(8.dp))
+
             // Titulo para citas
             Text(
                 text = "Tus próximas citas",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = primaryColor
             )
             Spacer(modifier = Modifier.height(16.dp))
 
             if (citas.isEmpty()) {
-                Text("No tienes citas asignadas.")
+                Card(
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    colors = CardDefaults.cardColors(containerColor = surfaceColor)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center){
+                        Text("Parece que no tienes citas pendientes. ¡Disfruta!", color = onSurfaceColor.copy(alpha = 0.7f))
+                    }
+                }
             } else {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(citas) { cita ->
+                    items(citas) { citaDisplay ->
+
+                        val cita = citaDisplay.cita
+                        val nombreMedico = citaDisplay.nombreMedico
+
                         detallesCitaCard(
                             fecha = cita.fecha,
                             hora = cita.hora,
-                            medico = cita.id_medico,
+                            medico = nombreMedico,
                             estado = cita.estado
                         )
                     }
@@ -118,15 +166,71 @@ fun HomePacienteScreen(
 
 @Composable
 fun detallesCitaCard(fecha: String, hora: String, medico: String, estado: String) {
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val statusColor = when (estado.lowercase()){
+        "pendiente" -> Color(0xFFFFA726)
+        "confirmada" -> Color(0xFF66BB6A)
+        "cancelada" -> MaterialTheme.colorScheme.error
+        else -> primaryColor.copy(alpha = 0.8f)
+    }
+
     Card(
-        modifier = Modifier.width(200.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
+        modifier = Modifier.width(260.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(fecha, style = MaterialTheme.typography.titleMedium)
-            Text(hora)
-            Text("Médico: $medico")
-            Text("Estado: $estado")
+
+            // Cabecera con la fecha e icono
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = fecha,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = primaryColor
+                )
+
+                Icon(
+                    Icons.Default.DateRange,
+                    contentDescription = null,
+                    tint = primaryColor
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Divider(color = primaryColor.copy(alpha = 0.3f))
+            Spacer(Modifier.height(8.dp))
+
+            //Hora y medico
+            Text("Hora: $hora", style = MaterialTheme.typography.bodyMedium)
+            Text("Médico: $medico", style = MaterialTheme.typography.bodyMedium)
+
+            Spacer(Modifier.height(8.dp))
+
+            // Estado
+            Row(verticalAlignment = Alignment.CenterVertically){
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(statusColor)
+                )
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    text = "Estado: $estado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = statusColor
+                )
+            }
+
         }
     }
 }
@@ -134,4 +238,9 @@ fun detallesCitaCard(fecha: String, hora: String, medico: String, estado: String
 data class BottomItem(
     val label: String,
     val icon: ImageVector
+)
+
+data class CitaDisplay(
+    val cita: Cita,
+    val nombreMedico: String
 )

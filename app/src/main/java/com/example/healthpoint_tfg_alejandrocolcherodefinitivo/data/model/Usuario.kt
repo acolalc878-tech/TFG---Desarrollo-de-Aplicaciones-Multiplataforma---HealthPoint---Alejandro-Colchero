@@ -3,7 +3,7 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model
 data class Usuario(
     val Id_usuario: String = "",
     val nombre: String = "",
-    val apellido: String = "",
+    val apellidos: String = "",
     val edad: Int = 0,
     val email: String = "",
     val dni: String = "",
