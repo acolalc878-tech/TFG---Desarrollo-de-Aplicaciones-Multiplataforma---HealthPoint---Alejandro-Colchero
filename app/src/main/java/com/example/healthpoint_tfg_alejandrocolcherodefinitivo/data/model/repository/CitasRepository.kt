@@ -17,4 +17,14 @@ class CitasRepository {
 
         return snap.documents.mapNotNull { it.toObject(Cita::class.java) }
     }
+
+    suspend fun finalizarCita(citaId: String){
+        try {
+            coleccion.document(citaId)
+                .update("estado", "FINALIZADA")
+                .await()
+        }catch (e: Exception){
+            throw e
+        }
+    }
 }

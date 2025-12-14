@@ -3,12 +3,15 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.CitasRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class GestionCitasViewModel: ViewModel() {
+class GestionCitasViewModel(
+    private val citaRepository: CitasRepository = CitasRepository()
+): ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -19,7 +22,7 @@ class GestionCitasViewModel: ViewModel() {
     val loading: StateFlow<Boolean> get() = _loading
 
     private val _mensaje = MutableStateFlow("")
-    val mensaje: StateFlow<String> get() = _mensaje
+    private val idMedicoActual = MutableStateFlow("" + "")
 
     // Carga en tiempo real
     fun cargarCitasMedico(idMedico: String) {
@@ -60,6 +63,22 @@ class GestionCitasViewModel: ViewModel() {
         }
     }
 
+    fun cargarCitasUsuario(idPaciente: String) {
+        db.collection("SolicitudCita")
+            .whereEqualTo("id_usuario", idPaciente)
+            .addSnapshotListener{ snapshot, e ->
+                if(e != null) {
+                    return@addSnapshotListener
+                }
+
+                val citasActualizadas = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(Cita::class.java)
+                } ?: emptyList()
+
+                _citas.value = citasActualizadas
+            }
+    }
+
     // Crear cita
     fun crearCita(cita: Cita) {
         viewModelScope.launch {
@@ -86,16 +105,15 @@ class GestionCitasViewModel: ViewModel() {
     }
 
     // Cambiar estado
-    fun cambiarEstado(idCita: String, nuevoEstado: String) {
+    fun marcarCitaFinalizada(citaId: String) {
         viewModelScope.launch {
-            _loading.value = true
-
-            db.collection("Cita").document(idCita)
-                .update("estado", nuevoEstado)
-                .addOnSuccessListener { _mensaje.value = "Estado de la cita actualizado" }
-                .addOnFailureListener { _mensaje.value = "Error al intentar cambiar estado" }
-
-            _loading.value = false
+            try {
+                citaRepository.finalizarCita(citaId)
+                // Recargar la lista de citas para que la interfaz se actualice
+                cargarCitasMedico(idMedicoActual.value)
+            } catch (e: Exception) {
+                println("Error al finalizar la cita $citaId: ${e.message}")
+            }
         }
     }
 

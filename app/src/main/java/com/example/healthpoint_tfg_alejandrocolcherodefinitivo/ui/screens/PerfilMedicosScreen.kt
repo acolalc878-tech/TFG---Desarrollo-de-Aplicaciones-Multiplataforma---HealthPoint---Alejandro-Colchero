@@ -80,7 +80,6 @@ fun PerfilMedicoScreen(
     }
 
     LaunchedEffect(medico) {
-        // Al cargar o actualizar el medico, sincronizamos el campo de texto
         medico?.let {
             nombre = it.nombre
             apellidos = it.apellidos
@@ -141,7 +140,6 @@ fun PerfilMedicoScreen(
         ) {
 
             // Informacion de los campos y edicion de campos
-
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },

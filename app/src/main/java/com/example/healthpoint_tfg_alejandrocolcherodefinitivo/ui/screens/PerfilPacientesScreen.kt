@@ -68,7 +68,7 @@ fun PerfilPacientesScreen(
 
         usuario?.let { u ->
             var nombre by remember { mutableStateOf(u.nombre) }
-            var apellido by remember { mutableStateOf(u.apellido) }
+            var apellido by remember { mutableStateOf(u.apellidos) }
             var telefono by remember { mutableStateOf(u.telefono) }
             var fechaNac by remember { mutableStateOf(u.fechaNacimiento) }
 
@@ -85,11 +85,17 @@ fun PerfilPacientesScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-                    OutlinedTextField(value = apellido, onValueChange = { apellido = it }, label = { Text("Apellido") })
-                    OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") })
-                    OutlinedTextField(value = fechaNac, onValueChange = { fechaNac = it }, label = { Text("Fecha de nacimiento") })
+                    OutlinedTextField(value = nombre, onValueChange = { nombre = it },
+                        label = { Text("Nombre") })
 
+                    OutlinedTextField(value = apellido, onValueChange = { apellido = it },
+                        label = { Text("Apellido") })
+
+                    OutlinedTextField(value = telefono, onValueChange = { telefono = it },
+                        label = { Text("Teléfono") })
+
+                    OutlinedTextField(value = fechaNac, onValueChange = { fechaNac = it },
+                        label = { Text("Fecha de nacimiento") })
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -100,7 +106,7 @@ fun PerfilPacientesScreen(
                             Usuario(
                                 Id_usuario = u.Id_usuario,
                                 nombre = nombre,
-                                apellido = apellido,
+                                apellidos = apellido,
                                 edad = u.edad,
                                 email = u.email,
                                 telefono = telefono,

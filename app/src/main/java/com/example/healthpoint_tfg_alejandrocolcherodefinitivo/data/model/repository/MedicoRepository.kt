@@ -76,4 +76,33 @@ class MedicoRepository {
             false
         }
     }
+
+    suspend fun obtenerTodasLasEspecialidades(): List<String>{
+        return try {
+            val snapshot = db.collection("Medico")
+                .get()
+                .await()
+
+            snapshot.documents
+                .mapNotNull { it.getString("especialidad") }
+                .distinct()
+        } catch (e: Exception){
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerMedicosPorEspecialidad(especialidad: String): List<Medico>{
+        return try{
+            val snapshot = db.collection("Medico")
+                .whereEqualTo("especialidad", especialidad)
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Medico::class.java)?.copy(Id_medico = doc.id)
+            }
+        } catch (e: Exception){
+            emptyList()
+        }
+    }
 }

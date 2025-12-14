@@ -6,7 +6,6 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.MedicoRepository
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.CitaDisplay
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

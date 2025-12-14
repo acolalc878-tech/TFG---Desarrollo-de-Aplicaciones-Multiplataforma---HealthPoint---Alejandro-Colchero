@@ -77,24 +77,6 @@ class CentroMedicoViewModel(
         }
     }
 
-    fun actualizarCentroMedico(idMedico: String, nuevoIdCentro: String){
-        _loading.value = true
-        _error.value = null
-        _actualizacionExitosa.value = false
-
-        viewModelScope.launch {
-            val exito = medicoRepo.actualizarCentroMedico(idMedico, nuevoIdCentro)
-
-            if (exito) {
-                _medico.value = _medico.value?.copy(Id_CentroMedico = nuevoIdCentro)
-                _actualizacionExitosa.value = true
-            } else {
-                _error.value = "Error al guardar el nuevo centro medico"
-            }
-            _loading.value = false
-        }
-    }
-
     // Hacemos que el snackbar no se muestre de nuevo
     fun noSnackBackRepeat(){
         _actualizacionExitosa.value = false

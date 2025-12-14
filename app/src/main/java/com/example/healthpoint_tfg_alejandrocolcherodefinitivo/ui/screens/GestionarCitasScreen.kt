@@ -1,9 +1,6 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -64,7 +61,9 @@ fun GestionarCitasScreen(
                 citas.forEach { cita ->
                     CitasCardScreen(cita = cita,
                         onEdit = { citaAEditar = cita },
-                        onDelete = { citaAEliminar = cita })
+                        onDelete = { citaAEliminar = cita },
+                        onFinalizar = { viewModel.marcarCitaFinalizada(cita.id_cita) }
+                    )
                     Spacer(Modifier.height(12.dp))
                 }
             }
@@ -115,20 +114,47 @@ fun GestionarCitasScreen(
 
 @Composable
 fun CitasCardScreen(
-    cita: Cita, onEdit: () -> Unit, onDelete: () -> Unit
+    cita: Cita,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onFinalizar: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
 
             Text("Fecha: ${cita.fecha}")
             Text("Hora: ${cita.hora}")
             Text("Motivo: ${cita.motivo}")
-            Text("Estado: ${cita.estado}")
+
+            val estadoColor = when (cita.estado.uppercase()){
+                "PENDIENTE" -> MaterialTheme.colorScheme.primary
+                "FINALIZADA" -> MaterialTheme.colorScheme.secondary
+                else -> MaterialTheme.colorScheme.onSurface
+            }
+            Text("Estado: ${cita.estado}", color = estadoColor)
 
             Spacer(Modifier.height(16.dp))
-            Row {
+
+            Row(Modifier.fillMaxWidth()) {
+
+                if(cita.estado.uppercase() == "PENDIENTE") {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = onFinalizar,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
+                        )
+                    ) {
+                        Text("Finalizar")
+                    }
+                    Spacer(Modifier.width(8.dp))
+                }
+
+                // Botones de Editar y Borrar
                 Button(
                     modifier = Modifier.weight(1f), onClick = onEdit
                 ) { Text("Editar") }
@@ -155,7 +181,6 @@ fun FormCitaDialog(
     var idPacienteSeleccionado by remember { mutableStateOf(citaInicial.id_usuario) }
     var expandedPaciente by remember { mutableStateOf(false) }
 
-    var idUsuario by remember { mutableStateOf(citaInicial.id_usuario) }
     var idCentro by remember { mutableStateOf(citaInicial.Id_centroMedico) }
     var fecha by remember { mutableStateOf(citaInicial.fecha) }
     var hora by remember { mutableStateOf(citaInicial.hora) }
@@ -165,7 +190,7 @@ fun FormCitaDialog(
 
     val pacienteActual = pacientesDisponibles.find { it.nombre == idPacienteSeleccionado }
     val pacienteDisplay = if (pacienteActual != null) {
-        "${pacienteActual.nombre} ${pacienteActual.apellido}"
+        "${pacienteActual.nombre} ${pacienteActual.apellidos}"
     } else {
         "Seleccionar Paciente..."
     }
@@ -196,7 +221,7 @@ fun FormCitaDialog(
                         ) {
                             pacientesDisponibles.forEach { paciente ->
                                 DropdownMenuItem(
-                                    text = { Text("${paciente.nombre} ${paciente.apellido}") },
+                                    text = { Text("${paciente.nombre} ${paciente.apellidos}") },
                                     onClick = {
                                         idPacienteSeleccionado = paciente.Id_usuario
                                         expandedPaciente = false
@@ -216,20 +241,21 @@ fun FormCitaDialog(
                     onValueChange = { fecha = it },
                     label = { Text("Fecha") })
 
-            OutlinedTextField(value = hora,
-                onValueChange = { hora = it },
-                label = { Text("Hora") })
+                OutlinedTextField(value = hora,
+                    onValueChange = { hora = it },
+                    label = { Text("Hora") })
 
-            OutlinedTextField(value = motivo,
-                onValueChange = { motivo = it },
-                label = { Text("Motivo") })
-            OutlinedTextField(value = estado,
-                onValueChange = { estado = it },
-                label = { Text("Estado") })
+                OutlinedTextField(value = motivo,
+                    onValueChange = { motivo = it },
+                    label = { Text("Motivo") })
 
-            OutlinedTextField(value = notas,
-                onValueChange = { notas = it },
-                label = { Text("Notas del médico") })
+                OutlinedTextField(value = estado,
+                    onValueChange = { estado = it },
+                    label = { Text("Estado") })
+
+                OutlinedTextField(value = notas,
+                    onValueChange = { notas = it },
+                    label = { Text("Notas del médico") })
         }
     },
 
@@ -252,20 +278,19 @@ fun FormCitaDialog(
                 Text("Guardar")
             }
         },
-
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        })
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Cancelar")
+                }
+        }
+    )
 }
+
 
 @Composable
 fun ConfirmarEliminarDialog(
     onDismiss: () -> Unit, onConfirm: () -> Unit
 ) {
-
-
     AlertDialog(onDismissRequest = onDismiss, title = { Text("Eliminar cita") },
         text = { Text("¿Seguro que quieres eliminar esta cita?") },
 
@@ -274,7 +299,6 @@ fun ConfirmarEliminarDialog(
                 Text("Eliminar")
             }
         },
-
         dismissButton = {
             Button(onClick = onDismiss) {
                 Text("Cancelar")

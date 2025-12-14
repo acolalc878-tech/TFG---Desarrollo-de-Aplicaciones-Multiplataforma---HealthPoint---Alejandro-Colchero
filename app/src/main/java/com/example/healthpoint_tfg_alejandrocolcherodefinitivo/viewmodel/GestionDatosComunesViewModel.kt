@@ -6,7 +6,6 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Usuario
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.CitasRepository
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.UsuarioRepository
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

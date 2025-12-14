@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Medico
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Usuario
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.CitasRepository
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.MedicoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +15,7 @@ class MedicoViewModel(
 ) : ViewModel() {
 
     val citasMedico = MutableStateFlow<List<Cita>>(emptyList())
+
     val loading = MutableStateFlow(false)
     val error = MutableStateFlow<String?>(null)
 
@@ -29,6 +29,7 @@ class MedicoViewModel(
     // Cargamos citas asignadas del medico
     fun cargarMedicoPorUsuario(idUsuario: String) {
         loading.value = true
+
         medicoRepository.obtenerMedicoPorUsuario(idUsuario) { med ->
             if (med != null) {
                 medico.value = med

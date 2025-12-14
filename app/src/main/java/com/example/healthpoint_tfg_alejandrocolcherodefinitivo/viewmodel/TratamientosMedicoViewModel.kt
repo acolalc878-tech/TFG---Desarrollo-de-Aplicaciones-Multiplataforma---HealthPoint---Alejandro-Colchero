@@ -24,7 +24,6 @@ class TratamientosMedicoViewModel(
     val mensaje: StateFlow<String?> get() = _mensaje
 
     fun cargarTratamientos(idMedico: String) {
-
         if (isLoaded && tratamientos.value.isNotEmpty()) {
             return
         }
@@ -47,12 +46,12 @@ class TratamientosMedicoViewModel(
         }
     }
 
-
     fun crearTratamiento(tratamiento: Tratamiento){
         viewModelScope.launch {
             try{
                 repo.crearTratamiento(tratamiento)
                 _mensaje.value = "Tratamiento creado"
+
             } catch (e: Exception){
                 _mensaje.value = "Error al crear el tratamiento: ${e.message}"
             } finally {
@@ -66,6 +65,7 @@ class TratamientosMedicoViewModel(
             try{
                 repo.editarTratamiento(tratamiento)
                 _mensaje.value = "Tratamiento actualizado"
+
             } catch (e: Exception) {
                 _mensaje.value = "Error al actualizar el tratamiento: ${e.message}"
             } finally {
@@ -79,6 +79,7 @@ class TratamientosMedicoViewModel(
             _loading.value = true
             try{
                 repo.eliminarTratamiento(idTratamiento)
+
             }catch (e: Exception){
                 _mensaje.value = "Error al eliminar tratamiento: ${e.message}"
             } finally {

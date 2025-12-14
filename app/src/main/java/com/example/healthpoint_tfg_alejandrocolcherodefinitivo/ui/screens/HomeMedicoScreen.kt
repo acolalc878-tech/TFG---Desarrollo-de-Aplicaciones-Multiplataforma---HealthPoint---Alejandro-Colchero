@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -19,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +38,8 @@ fun HomeMedicoScreen(
     onGestionarCitas: (idMedico: String) -> Unit,
     onGestionarTratamientos: (String) -> Unit,
     onVerPerfil: (String) -> Unit,
-    onBuscarMedicamentos: (String) -> Unit
+    onBuscarMedicamentos: (String) -> Unit,
+    onGestionarSolicitudes: (idMedico: String) -> Unit,
 ) {
 
     // Observables
@@ -156,13 +157,18 @@ fun HomeMedicoScreen(
                     label = "Ver perfil y centro médico",
                     icon = Icons.Default.Person,
                     onClick = { onVerPerfil(idMedico) }
-                )
-            )
+                ),
 
+                ActionItem(
+                    label = "Solicitudes de Cita",
+                    icon = Icons.Default.Info,
+                    onClick = { onGestionarSolicitudes(idMedico) }
+                ),
+
+            )
             items(actions) { item ->
                 ActionCard(item)
             }
-
             item {
                 error?.let {
                     Spacer(modifier = Modifier.height(16.dp))

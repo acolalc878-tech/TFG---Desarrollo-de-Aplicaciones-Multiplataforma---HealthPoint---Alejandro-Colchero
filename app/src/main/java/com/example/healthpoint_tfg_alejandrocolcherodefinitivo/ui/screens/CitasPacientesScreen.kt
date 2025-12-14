@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.CitasPacienteViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasPacienteScreen(

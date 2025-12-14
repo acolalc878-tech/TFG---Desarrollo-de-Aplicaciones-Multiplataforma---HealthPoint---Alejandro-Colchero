@@ -24,7 +24,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.List
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,6 +43,8 @@ fun HomePacienteScreen(
     onVerCita: () -> Unit,
     onVerTratamientos: () -> Unit,
     onVerPerfil: () -> Unit,
+    onSolicitarCita: (String) -> Unit,
+    onVerEstadoSoliciatudes: () -> Unit
 ) {
 
     val viewModel: CitasPacienteViewModel = viewModel()
@@ -60,6 +64,7 @@ fun HomePacienteScreen(
         BottomItem("Inicio", Icons.Default.Home),
         BottomItem("Citas", Icons.Default.DateRange),
         BottomItem("Tratamientos", Icons.Default.Favorite),
+        BottomItem("Solicitudes", Icons.Default.List),
         BottomItem("Perfil", Icons.Default.Person)
     )
 
@@ -102,7 +107,8 @@ fun HomePacienteScreen(
                             when (index) {
                                 1 -> onVerCita()
                                 2 -> onVerTratamientos()
-                                3 -> onVerPerfil()
+                                3 -> onVerEstadoSoliciatudes()
+                                4 -> onVerPerfil()
                             }
                         },
                         icon = { Icon(item.icon, contentDescription = item.label) },
@@ -124,7 +130,29 @@ fun HomePacienteScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             ) {
 
-            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { onSolicitarCita(idUsuario) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.AddCircle,
+                        contentDescription = "Solicitar Cita",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "Solicitar Cita",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             // Titulo para citas
             Text(

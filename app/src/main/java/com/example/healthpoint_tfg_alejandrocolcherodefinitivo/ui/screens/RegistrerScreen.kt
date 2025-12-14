@@ -33,10 +33,8 @@ fun RegistrerScreen(
     viewModel: RegistrerScreenViewModel = viewModel(),
     onRegisterSuccess: () -> Unit = {}
 ) {
-
     val isLoading by remember { derivedStateOf { viewModel.isLoading.value}}
     val lastError by remember { derivedStateOf { viewModel.lastError.value}}
-
 
     // Campos del formulario del login
     var nombre by remember { mutableStateOf("") }
@@ -48,12 +46,12 @@ fun RegistrerScreen(
     var fechaNacimiento by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("Paciente") }
 
-
     // Campos exclusivos del Médico
     var numColegiado by remember { mutableStateOf("") }
     var especialidad by remember { mutableStateOf("") }
     var horario by remember { mutableStateOf("") }
     var idCentroMedico by remember { mutableStateOf("") }
+
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(modifier = Modifier
@@ -64,30 +62,55 @@ fun RegistrerScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = fechaNacimiento, onValueChange = { fechaNacimiento = it }, label = { Text("Fecha de nacimiento") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = nombre, onValueChange = { nombre = it },
+                label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(value = apellidos, onValueChange = { apellidos = it },
+                label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(value = email, onValueChange = { email = it },
+                label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(value = telefono, onValueChange = { telefono = it },
+                label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(value = fechaNacimiento, onValueChange = { fechaNacimiento = it },
+                label = { Text("Fecha de nacimiento") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(value = password, onValueChange = { password = it },
+                label = { Text("Contraseña") }, modifier = Modifier.fillMaxWidth())
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { role = "Paciente" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Paciente") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) {
+                Button(onClick = { role = "Paciente" }, colors = ButtonDefaults.buttonColors(containerColor =
+                if (role=="Paciente") MaterialTheme.colorScheme.primary else Color.LightGray),
+                    modifier = Modifier.weight(1f)) {
                     Text("Paciente")
                 }
-                Button(onClick = { role = "Medico" }, colors = ButtonDefaults.buttonColors(containerColor = if (role=="Medico") MaterialTheme.colorScheme.primary else Color.LightGray), modifier = Modifier.weight(1f)) {
+
+                Button(onClick = { role = "Medico" }, colors = ButtonDefaults.buttonColors(containerColor =
+                if (role=="Medico") MaterialTheme.colorScheme.primary else Color.LightGray),
+                    modifier = Modifier.weight(1f)) {
                     Text("Médico")
                 }
             }
 
             if (role == "Medico") {
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = especialidad, onValueChange = { especialidad = it}, label = { Text("Especialidad")}, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = numColegiado, onValueChange = { numColegiado = it}, label = { Text("NºColegiado")}, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = horario, onValueChange = { horario = it}, label = { Text("Horario")}, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = idCentroMedico, onValueChange = { idCentroMedico = it }, label = { Text("ID Centro Médico (opcional)") }, modifier = Modifier.fillMaxWidth())
+
+                OutlinedTextField(value = especialidad, onValueChange = { especialidad = it},
+                    label = { Text("Especialidad")}, modifier = Modifier.fillMaxWidth())
+
+                OutlinedTextField(value = numColegiado, onValueChange = { numColegiado = it},
+                    label = { Text("NºColegiado")}, modifier = Modifier.fillMaxWidth())
+
+                OutlinedTextField(value = horario, onValueChange = { horario = it},
+                    label = { Text("Horario")}, modifier = Modifier.fillMaxWidth())
+
+                OutlinedTextField(value = idCentroMedico, onValueChange = { idCentroMedico = it },
+                    label = { Text("ID Centro Médico (opcional)") }, modifier = Modifier.fillMaxWidth())
             }
 
             Spacer(modifier = Modifier.height(16.dp))

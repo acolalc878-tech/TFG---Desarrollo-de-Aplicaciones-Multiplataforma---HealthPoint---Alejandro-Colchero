@@ -215,7 +215,9 @@ fun DialogTratamiento(
                             readOnly = true,
                             label = { Text("Cita para asignar Tratamiento") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
                         )
 
                         ExposedDropdownMenu(
@@ -241,7 +243,10 @@ fun DialogTratamiento(
 
                 OutlinedTextField(value = descripcion.value, onValueChange = { descripcion.value = it }, label = { Text("Descripción") })
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = duracion.value, onValueChange = { duracion.value = it }, label = { Text("Duración (días)") })
+                OutlinedTextField(
+                    value = duracion.value,
+                    onValueChange = { duracion.value = it },
+                    label = { Text("Duración (días)") })
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(value = indicaciones.value, onValueChange = { indicaciones.value = it }, label = { Text("Indicaciones") })
             }

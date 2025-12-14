@@ -4,12 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Tratamiento
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Usuario
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.CitasRepository
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.TratamientoRepository
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.UsuarioRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

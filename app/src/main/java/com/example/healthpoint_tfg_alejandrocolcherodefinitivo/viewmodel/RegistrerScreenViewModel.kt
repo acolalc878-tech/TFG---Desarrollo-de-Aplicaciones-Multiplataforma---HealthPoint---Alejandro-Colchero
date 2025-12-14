@@ -8,7 +8,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-
 class RegistrerScreenViewModel: ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
