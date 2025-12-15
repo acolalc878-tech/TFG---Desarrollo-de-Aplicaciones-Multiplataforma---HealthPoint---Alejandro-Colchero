@@ -39,7 +39,7 @@ class CentroMedicoViewModel(
         _error.value = null
 
         viewModelScope.launch {
-            val med = medicoRepo.obtenerMedicoPorId(idMedico)
+            val med = medicoRepo.obtenerMedicoPorUsuarioId(idMedico)
 
             _medico.value = med
 
@@ -57,18 +57,18 @@ class CentroMedicoViewModel(
         }
     }
 
-    fun actualizarPerfilMedico(medicoActualizado: Medico) {
+    fun actualizarPerfilMedico(medico: Medico) {
         _loading.value = true
         _error.value = null
         _actualizacionExitosa.value = false
 
         viewModelScope.launch {
             // Llamamos al repositorio para actualizar los campos
-            val exito = medicoRepo.actualizarPerfilMedico(medicoActualizado)
+            val exito = medicoRepo.actualizarPerfilMedico(medico)
 
             // Si es exitoso el cambio en la base de datos, se actualiza el estado local
             if (exito){
-                _medico.value = medicoActualizado
+                _medico.value = medico
                 _actualizacionExitosa.value = true
             } else {
                 _error.value = "Erroral guardar el nuevo perfil médico"

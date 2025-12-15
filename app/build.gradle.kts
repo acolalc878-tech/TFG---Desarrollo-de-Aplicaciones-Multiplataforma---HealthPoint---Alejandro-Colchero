@@ -50,14 +50,14 @@ android {
 
 dependencies {
     // Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:32.2.0")) // version actualizada
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
 
-    // Firebase (no pones versión, BoM la controla)
+    // Firebase - Analytics, Base de datos, Implementacion de autenticacion
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
 
-    // AndroidX y Compose
+    // Estados, Asincronía y Compose
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -75,7 +75,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    //OkHTTP
+        //OkHTTP
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 

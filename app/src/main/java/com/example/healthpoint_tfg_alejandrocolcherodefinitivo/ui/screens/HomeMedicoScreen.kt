@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.MedicoViewModel
 import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,10 +40,10 @@ fun HomeMedicoScreen(
     onGestionarTratamientos: (String) -> Unit,
     onVerPerfil: (String) -> Unit,
     onBuscarMedicamentos: (String) -> Unit,
-    onGestionarSolicitudes: (idMedico: String) -> Unit,
+    onGestionarSolicitudes: (String) -> Unit,
 ) {
 
-    // Observables
+
     val medicoState by viewModel.medico.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -51,9 +52,16 @@ fun HomeMedicoScreen(
     val surfaceColor = MaterialTheme.colorScheme.surface
     val idMedico = medicoState?.Id_medico ?: ""
 
-    // Cargar datos del medico al entrar (resuelve Id_medico)
     LaunchedEffect(idUsuario) {
         viewModel.cargarMedicoPorUsuario(idUsuario)
+    }
+
+    LaunchedEffect(idMedico) {
+        if (idMedico.isNotBlank()) {
+            Log.d("MedicoHome", "ID de Medico cargado: $idMedico")
+        } else {
+            Log.d("MedicoHome", "ID de Medico está vacío o cargando...")
+        }
     }
 
     Scaffold(
@@ -127,44 +135,42 @@ fun HomeMedicoScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Tarjetas de accion de cuadricula
             val actions = listOf(
                 ActionItem(
                     label = "Gestionar Pacientes",
                     icon = Icons.Default.Person,
-                    onClick = { onGestionarPacientes(idMedico) }
+                    onClick = { if (idMedico.isNotBlank()) onGestionarPacientes(idMedico) }
                 ),
 
                 ActionItem(
                     label = "Gestionar Citas",
                     icon = Icons.Default.DateRange,
-                    onClick = { onGestionarCitas(idUsuario) }
+                    onClick = { if (idMedico.isNotBlank()) onGestionarCitas(idMedico) } // CORREGIDO: USA idMedico
                 ),
 
                 ActionItem(
                     label = "Gestionar Tratamientos",
                     icon = Icons.Default.Favorite,
-                    onClick = { onGestionarTratamientos(idMedico) }
+                    onClick = { if (idMedico.isNotBlank()) onGestionarTratamientos(idMedico) }
                 ),
 
                 ActionItem(
                     label = "Buscar Medicamentos",
                     icon = Icons.Default.Search,
-                    onClick = { onBuscarMedicamentos(idMedico) }
+                    onClick = { if (idMedico.isNotBlank()) onBuscarMedicamentos(idMedico) }
                 ),
 
                 ActionItem(
                     label = "Ver perfil y centro médico",
                     icon = Icons.Default.Person,
-                    onClick = { onVerPerfil(idMedico) }
+                    onClick = { if (idMedico.isNotBlank()) onVerPerfil(idMedico) }
                 ),
 
                 ActionItem(
                     label = "Solicitudes de Cita",
                     icon = Icons.Default.Info,
-                    onClick = { onGestionarSolicitudes(idMedico) }
+                    onClick = { if (idMedico.isNotBlank()) onGestionarSolicitudes(idMedico) }
                 ),
-
             )
             items(actions) { item ->
                 ActionCard(item)

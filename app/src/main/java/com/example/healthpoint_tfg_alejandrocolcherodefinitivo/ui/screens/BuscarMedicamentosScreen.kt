@@ -22,35 +22,49 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.MedicamentosViewModel
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BuscarMedicamentosScreen(
-    onBack: () -> Unit,
-    viewModel: MedicamentosViewModel = viewModel()
+    onBack: () -> Unit, // Callback de navegacion para salir de la pantalla
+    viewModel: MedicamentosViewModel = viewModel() // Impplementacion del ViewModel
 ) {
-    val query by viewModel.sentencia.collectAsState()
-    val resultados by viewModel.resultados.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val error by viewModel.error.collectAsState()
-    val detalle by viewModel.medicamentoDetalle.collectAsState()
+
+    // Usamos collectAsState() convierten los StatesFlows del ViewModel en estados que Compose observa
+    val query by viewModel.sentencia.collectAsState() // Texto de busqueda
+    val resultados by viewModel.resultados.collectAsState() // Lista de sugerencias de nombre
+    val loading by viewModel.loading.collectAsState() // Cargando la busqueda
+    val error by viewModel.error.collectAsState() // Mensaje de error
+    val detalle by viewModel.medicamentoDetalle.collectAsState() // Detalle del medicamento seleccionado
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC), // Fondo blanco suave
         topBar = {
             TopAppBar(
-                title = { Text("Buscar Medicamentos") },
+                title = { Text("Buscar Medicamentos", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimaryColor)},
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = onPrimaryColor)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor, // Azul cielo
+                    titleContentColor = onPrimaryColor
+                )
             )
         }
     ) { padding ->
@@ -66,8 +80,8 @@ fun BuscarMedicamentosScreen(
                 OutlinedTextField(
                     value = query,
                     onValueChange = {
-                        viewModel.actualizarQuery(it)
-                        viewModel.buscarSugerencia() },
+                        viewModel.actualizarQuery(it) // Actualiza el StateFlow de la consulta
+                        viewModel.buscarSugerencia() }, // Dispara la busqueda o sugerencia
                     placeholder = { Text("Buscar por nombre (mínimo 3 letras)...") },
                     leadingIcon = {
                         Icon(Icons.Default.Search, contentDescription = "Buscar")
@@ -78,6 +92,7 @@ fun BuscarMedicamentosScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                // Indicadores de carga: mostramos una barra de progreso lineal mientras la informacion carga
                 if (loading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 } else {
@@ -86,20 +101,25 @@ fun BuscarMedicamentosScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                // Control de Flujo para la interfaz dinamica
                 when {
                     error != null -> {
+                        // Mostramos mensaje de error de conexion
                         Text("Error de conexion $error", color = MaterialTheme.colorScheme.error)
                     }
 
                     !loading && resultados.isEmpty() && query.length >= 3 -> {
+                        // Mostramos mensaje de no encontrado después de buscar con suficientes caracteres.
                         Text("No se encontraron coincidencias para \"$query\".", style = MaterialTheme.typography.bodyMedium)
                     }
 
                     !loading && query.length < 3 -> {
+                        // Mensaje de guía para el usuario.
                         Text("Introduce al menos 3 caracteres para buscar.", style = MaterialTheme.typography.bodySmall)
                     }
 
                     else -> {
+                        // Muestra la lista de resultados
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
                         ){
@@ -125,7 +145,7 @@ fun BuscarMedicamentosScreen(
 fun CardSugerencia(name: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
+        onClick = onClick, // El click disparala acción proporcionada
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -133,10 +153,6 @@ fun CardSugerencia(name: String, onClick: () -> Unit) {
                 .fillMaxWidth()
         ) {
             Text(name, style = MaterialTheme.typography.titleMedium)
-            Text(
-                "Haz click para ver la información más detallada",
-                style = MaterialTheme.typography.labelSmall
-            )
         }
     }
 }

@@ -2,12 +2,17 @@ package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -25,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -50,140 +57,212 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.Solicit
 fun SolicitudCitaScreen(
     idPaciente: String,
     onBack: () -> Unit,
-    onSolicitudEnviada: (String) -> Unit,
-    viewModel: SolicitarCitasViewModel = viewModel()
+    viewModel: SolicitarCitasViewModel = viewModel(),
+    onSolicitudEnviada: (String) -> Unit
 ) {
+
+    // Observacion de estados
     val especialidades by viewModel.especialidades.collectAsState()
     val medicos by viewModel.medicos.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
+    val loading by viewModel.loading.collectAsState()
 
-    var especialidadSel by remember { mutableStateOf("") }
-    var medicoSel by remember { mutableStateOf<Medico?>(null) }
-    var motivo by remember { mutableStateOf("") }
+    // Estados locales para la seleccion
+    var especialidadSeleccionada by remember { mutableStateOf("") }
+    var medicoSeleccionado by remember { mutableStateOf("") }
+    var motivoConsulta by remember { mutableStateOf("") }
+
+    // Estados para lod DropdowsMenus
+    var expandedEspecialidad by remember { mutableStateOf(false) }
+    var expandedMedico by remember { mutableStateOf(false) }
 
     val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
 
+    // Cargamos especialidades al incio
     LaunchedEffect(Unit) {
         viewModel.cargarEspecialidades()
     }
 
+    LaunchedEffect(mensaje) {
+        mensaje?.let{ msg ->
+            if(msg.contains("exito|")) {
+                val partes = msg.split("|")
+                val idSolicitud = partes.getOrNull(1)
+
+                if (idSolicitud != null) {
+                    onSolicitudEnviada(idSolicitud)
+                    viewModel.limpiarMensaje()
+                }
+            }
+        }
+    }
+
+    // Cargamos medicos cuando cambia la especialidad
+    LaunchedEffect(especialidadSeleccionada) {
+        if(especialidadSeleccionada.isNotBlank()){
+            viewModel.cargarMedicos(especialidadSeleccionada)
+        }
+        medicoSeleccionado = "" // Reseteamos el medico si cambia la especialidad
+    }
+
     Scaffold(
-        containerColor = Color(0xFFF7F9FFC),
+        containerColor = Color(0xFFF7F9FC), // Fondo blanco suave
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Solicitar Cita",
-                        color = MaterialTheme.colorScheme.surface,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
+                title = { Text("Solicitar Cita", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimaryColor)},
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = onPrimaryColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = primaryColor
+                    containerColor = primaryColor, // Azul cielo
+                    titleContentColor = onPrimaryColor
                 )
             )
         }
     ) { padding ->
 
         Column(
-            Modifier
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
                 .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(20.dp),
         ) {
-
             Text(
                 "Completa los datos para enviar tu solicitud de cita médica.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            Spacer(Modifier.height(24.dp))
+            // Seleccion de especialidad
+            Box(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = expandedEspecialidad,
+                    onExpandedChange = {expandedEspecialidad = !expandedEspecialidad}
+                ) {
+                    OutlinedTextField(
+                        value = especialidadSeleccionada.ifBlank { "Seleccione una especialidad" },
+                        onValueChange = { /* Solo lectura */ },
+                        readOnly = true,
+                        label = { Text("Especialidad") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEspecialidad) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
 
-            DropdownMenuEspecialidad(
-                especialidades = especialidades,
-                seleccionada = especialidadSel,
-                onSeleccion = { especialidad ->
-                    especialidadSel = especialidad
-                    viewModel.cargarMedicos(especialidad)
-                    medicoSel = null
-                    viewModel.limpiarMensaje()
+                    ExposedDropdownMenu(
+                        expanded = expandedEspecialidad,
+                        onDismissRequest = { expandedEspecialidad = false}
+                    ) {
+                        especialidades.forEach { especialidad ->
+                            DropdownMenuItem(
+                                text = { Text(especialidad)},
+                                onClick = {
+                                    especialidadSeleccionada = especialidad
+                                    expandedEspecialidad = false
+                                }
+                            )
+                        }
+                    }
                 }
-            )
+            }
 
-            Spacer(Modifier.height(12.dp))
+            // Seleccion de especialidad
+            Box(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = expandedMedico,
+                    onExpandedChange = {expandedMedico = !expandedMedico}
+                ) {
+                    OutlinedTextField(
+                        value = medicos.find { it.Id_medico == medicoSeleccionado }?.let { "${it.nombre} ${it.apellidos}" }
+                            ?: "Seleccione un médico",
+                        onValueChange = { /* Solo lectura */ },
+                        readOnly = true,
+                        label = { Text("Medico (por especialidad)") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMedico) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        enabled = medicos.isNotEmpty()
+                    )
 
-            // Medicos segun su especialidad
-            DropdownMenuMedicos(
-                medicos = medicos,
-                seleccionada = medicoSel,
-                onSeleccion = { medico ->
-                    medicoSel = medico
-                    viewModel.limpiarMensaje()
+                    ExposedDropdownMenu(
+                        expanded = expandedMedico,
+                        onDismissRequest = {expandedMedico = false}
+                    ) {
+                        medicos.forEach { medico ->
+                            DropdownMenuItem(
+                                text = { Text("${medico.nombre} ${medico.apellidos}") },
+                                onClick = {
+                                    medicoSeleccionado = medico.Id_medico
+                                    expandedMedico = false
+                                }
+                            )
+                        }
+                    }
                 }
-            )
+            }
 
-            Spacer(Modifier.height(16.dp))
-
+            // Motivo de la consulta
             OutlinedTextField(
-                value = motivo,
-                onValueChange = { motivo = it },
+                value = motivoConsulta,
+                onValueChange = { motivoConsulta = it },
                 label = { Text("Motivo de la consulta") },
-                placeholder = {Text("Describa brevemente el motivo de su consulta")},
+                placeholder = {Text("Describa brevemente el motivo...")},
                 singleLine = false,
                 maxLines = 4,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp).padding(bottom = 24.dp)
             )
-
-            Spacer(Modifier.height(32.dp))
 
             // Boton de Enviar
             Button(
                 onClick = {
-                    medicoSel?.let {
-                        viewModel.enviarSolicitud(idPaciente, it, motivo)
-
-                        onSolicitudEnviada(idPaciente)
-                        // Cuando enviamos reiniciamos el motivo
-                        motivo = ""
-                        especialidadSel = "" // Recargamos especialidad tambien
-                        medicoSel = null
+                    val medicoElegido = medicos.find { it.Id_medico == medicoSeleccionado }
+                    if (medicoElegido != null && motivoConsulta.isNotBlank()) {
+                        viewModel.enviarSolicitud(idPaciente, medicoElegido, motivoConsulta)
+                    } else {
+                        viewModel.limpiarMensaje()
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                enabled = medicoSel != null && motivo.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                enabled = medicoSeleccionado.isNotBlank() && motivoConsulta.isNotBlank() && !loading,
+                modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
-                Text("Enviar Solicitud", style = MaterialTheme.typography.titleMedium)
+                if(loading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+
+                } else {
+                    Text("Enviar solicitud", style = MaterialTheme.typography.titleMedium)
+                }
             }
 
             // Mensaje de respuesta
             mensaje?.let { mensaje ->
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(16.dp))
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = primaryColor.copy(alpha = 0.1f)
+                        if (mensaje.contains("éxito")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    elevation = CardDefaults.cardElevation(2.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(modifier = Modifier.padding(12.dp)) {
                         Icon(
                             Icons.Default.Warning,
                             contentDescription = "Estado",
-                            tint = primaryColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
 
-                        Spacer(Modifier.width(8.dp))
                         Text(
                             mensaje,
-                            color = primaryColor,
-                            fontWeight = FontWeight.Medium
+                            color = if (mensaje.contains("éxito")) Color(0xFF4CAF50) else Color(0xFFF44336),
+                            modifier = Modifier.padding(12.dp)
                         )
                     }
                 }
@@ -191,87 +270,3 @@ fun SolicitudCitaScreen(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropdownMenuEspecialidad(
-    especialidades: List<String>,
-    seleccionada: String,
-    onSeleccion: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = if (seleccionada.isEmpty()) "Seleccione una especialidad del medico que quiere que le atienda"
-            else seleccionada,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Especialidad") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth()
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            especialidades.forEach {
-                DropdownMenuItem(
-                    text = { Text(it) },
-                    onClick = {
-                        onSeleccion(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DropdownMenuMedicos(
-    medicos: List<Medico>,
-    seleccionada: Medico?,
-    onSeleccion: (Medico) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val nombreDisplay = seleccionada?.let { "${it.nombre} ${it.apellidos}" } ?: "Selecciona médico"
-    val enabled = medicos.isNotEmpty()
-
-    ExposedDropdownMenuBox(
-        expanded = expanded && enabled,
-        onExpandedChange = { expanded = !expanded && enabled }
-    ) {
-        OutlinedTextField(
-            value = nombreDisplay,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Médico (por especialidad)") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
-            enabled = enabled,
-            colors = ExposedDropdownMenuDefaults.textFieldColors()
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded && enabled,
-            onDismissRequest = { expanded = false }
-        ) {
-            medicos.forEach { medico ->
-                DropdownMenuItem(
-                    text = { Text("${medico.nombre} ${medico.apellidos} - Col. ${medico.numColegiado}") },
-                    onClick = {
-                        onSeleccion(medico)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-

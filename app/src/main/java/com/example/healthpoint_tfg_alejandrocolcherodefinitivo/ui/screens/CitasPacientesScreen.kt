@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,13 +44,16 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.CitasPa
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasPacienteScreen(
-    idPaciente: String,
-    viewModel: CitasPacienteViewModel = viewModel(),
+    idPaciente: String, // id del paciente
+    viewModel: CitasPacienteViewModel = viewModel(), // ViewModel implementado
     onBack: () -> Unit
 ) {
+    // Recoleccion de estados desde el ViewModel
     val citas by viewModel.citas.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     // Cargamos las citas al entrar en la pantalla
     LaunchedEffect(idPaciente) {
@@ -57,45 +61,52 @@ fun CitasPacienteScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC),
         topBar = {
             TopAppBar(
-                title = { Text("Mis Citas") },
+                title = { Text("Mis Citas", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
         }
     ) { padding ->
 
+        // Contenedor Principal
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            // Transicion de Estados
+            // Aplicamos una animacion suave cuando la interfaz cambia entre los diferentes estados (carga, error, resultados, vacío).
             Crossfade(
                 targetState = Triple(loading, citas, error),
                 label = "citasCrossfade"
             ) { (isLoading, listaCitas, err) ->
 
+                // Manejo condicional de Estados de la interfaz
                 when {
                     isLoading -> Box(
                         Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
-                    ) { CircularProgressIndicator() }
+                    ) { CircularProgressIndicator() } // Muestra indicador de carga.
 
                     err != null -> Box(
                         Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
-                    ) { Text(err ?: "") }
+                    ) { Text(err ?: "") } // Muestra mensaje de error
 
                     listaCitas.isEmpty() -> Box(
                         Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
-                    ) { Text("No tienes citas") }
+                    ) { Text("No tienes citas") } // Muestra mensaje de lista vacia
 
                     else -> LazyColumn(
+                        // Muestrala lista de citas usando LazyColumn para optimizar el rendimiento
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -112,6 +123,7 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
     val cita = citaDisplay.cita
     val nombreMedico = citaDisplay.nombreMedico
 
+    // Definicion de colores y estilos
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
@@ -127,7 +139,7 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(12.dp), // redondeamos el borde de la carta
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -135,12 +147,13 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
 
-            // Fecha y estado
+            // Sección 1: Fecha, Hora y Estado Dinámico
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Fecha y Hora de la cita
                 Text(
                     "${cita.fecha} ${cita.hora}",
                     style = MaterialTheme.typography.titleMedium,
@@ -148,11 +161,13 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
                     color = onSurfaceColor
                 )
 
+                // Etiqueta del estado (con color de fondoy texto dinámico)
                 Text(
                     text = cita.estado.uppercase(),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = getStatusColor(cita.estado),
+                    // Aplicamos fondo con baja opacidad del color del estadopara contraste
                     modifier = Modifier
                         .background(
                             color = getStatusColor(cita.estado).copy(alpha = 0.1f),
@@ -162,6 +177,7 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
                 )
             }
 
+            // Separadores
             Spacer(Modifier.height(16.dp))
             Divider(color = primaryColor.copy(alpha = 0.1f))
             Spacer(Modifier.height(16.dp))
@@ -173,7 +189,7 @@ fun CitaCardPaciente(citaDisplay: CitaDisplay){
 
             Text("Motivo: ${cita.motivo}", style = MaterialTheme.typography.bodyLarge)
 
-            // Notas del medico (si las hay)
+            // Sección 2: Notas del Médico (Condicional)
             if(cita.notasMedico.isNotBlank()){
                 Spacer(Modifier.height(16.dp))
                 Divider(color = primaryColor.copy(alpha = 0.1f))

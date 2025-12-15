@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
@@ -58,6 +61,9 @@ fun GestionarTratamientosScreen(
         comunesViewModel.cargarCitasMedico(idMedico)
     }
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+
     val lista by viewModel.tratamientos.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
@@ -69,14 +75,19 @@ fun GestionarTratamientosScreen(
     var eliminarSeleccionado by remember { mutableStateOf<Tratamiento?>(null) }
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC), // Fondo blanco suave
         topBar = {
             TopAppBar(
-                title = { Text("Gestionar Tratamientos") } ,
+                title = { Text("Gestionar Tratamientos", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimaryColor)},
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = onPrimaryColor)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor, // Azul cielo
+                    titleContentColor = onPrimaryColor
+                )
             )
         }
     ) { padding ->

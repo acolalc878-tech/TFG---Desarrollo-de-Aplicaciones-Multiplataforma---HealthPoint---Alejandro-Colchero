@@ -1,11 +1,14 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Medico
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.SolicitudCita
+import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Usuario
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.MedicoRepository
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.repository.SolicitudCitaRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +21,11 @@ class SolicitarCitasViewModel(
     private val repo: SolicitudCitaRepository = SolicitudCitaRepository(),
     private val repoMedico: MedicoRepository = MedicoRepository()
 ) : ViewModel() {
+
+    private val db = FirebaseFirestore.getInstance()
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> get() = _loading
 
     private val _especialidades = MutableStateFlow<List<String>>(emptyList())
     val especialidades: StateFlow<List<String>> = _especialidades
@@ -32,37 +40,49 @@ class SolicitarCitasViewModel(
     val solicitudes: StateFlow<List<SolicitudCita>> = _solicitudes
 
     fun cargarSolicitudes(idMedico: String) {
-        viewModelScope.launch {
-            _solicitudes.value = repo.obtenerSolicitudesPorMedico(idMedico)
-        }
+       if(idMedico.isBlank()) return
+
+        Log.i("DebugCarga", "Cargando solicitudes con ID de filtro: $idMedico")
+
+       viewModelScope.launch {
+           Log.i("CitasViewModel", "Iniciando carga de solicitudes para ID: $idMedico")
+
+           _loading.value = true
+           try {
+               val listaSolicitudes = repo.obtenerSolicitudesPorMedico(idMedico)
+
+               Log.i("CitasViewModel", "Solicitudes encontradas para $idMedico: ${listaSolicitudes.size}")
+
+               _solicitudes.value = listaSolicitudes
+           } catch (e: Exception) {
+               println("Error al cargar solicitudes para el médico: ${e.message}")
+               _solicitudes.value = emptyList()
+           } finally {
+               _loading.value = false
+           }
+       }
     }
 
     fun aceptarSolicitud(solicitud: SolicitudCita) {
         viewModelScope.launch {
-            try{
-                repo.aceptarSolicitud(solicitud)
-                cargarSolicitudes(solicitud.Id_medico)
-            }catch (e: Exception){
-                println("Error al aceptar solicitud: ${e.message}")
-            }
+            repo.aceptarSolicitud(solicitud)
+            cargarSolicitudes(solicitud.id_medico)
         }
     }
 
     fun rechazarSolicitud(solicitud: SolicitudCita) {
         viewModelScope.launch {
-            try{
-                repo.rechazarSolicitud(solicitud)
-                cargarSolicitudes(solicitud.Id_medico)
-            }catch (e: Exception){
-                println("Error al rechazar solicitud: ${e.message}")
-            }
+            repo.rechazarSolicitud(solicitud)
+            cargarSolicitudes(solicitud.id_medico)
         }
     }
 
     fun cargarEspecialidades(){
         viewModelScope.launch {
             _mensaje.value = null
-            _especialidades.value = repoMedico.obtenerTodasLasEspecialidades()
+            _especialidades.value = repoMedico.
+
+            obtenerTodasLasEspecialidades()
         }
     }
 
@@ -70,11 +90,11 @@ class SolicitarCitasViewModel(
         viewModelScope.launch {
             _mensaje.value = null
             try {
-
+                val idSolicitudGenerada = UUID.randomUUID().toString()
                 val nuevaSolicitud = SolicitudCita(
-                    Id_solicitud = UUID.randomUUID().toString(),
-                    Id_usuario = idPaciente,
-                    Id_medico = medico.Id_medico,
+                    id_solicitud = idSolicitudGenerada,
+                    id_usuario = idPaciente,
+                    id_medico = medico.Id_medico.lowercase(),
                     especialidad = medico.especialidad,
                     motivo = motivo,
                     estado = "PENDIENTE",
@@ -83,17 +103,16 @@ class SolicitarCitasViewModel(
 
                 repo.enviarSolicitud(nuevaSolicitud)
 
-                _mensaje.value = "Solicitud enviada al medico. ${medico.nombre} con éxito"
+                _mensaje.value = "Solicitud enviada al medico. ${medico.nombre} con éxito|${idSolicitudGenerada}"
 
                 _medicos.value = emptyList()
-
                 _especialidades.value = emptyList()
 
             } catch (e: Exception){
                 _mensaje.value = "Error al enviar la solicitud: ${e.localizedMessage}"
             }
-            }
         }
+    }
 
     fun cargarMedicos(especialidad: String) {
         viewModelScope.launch {

@@ -4,7 +4,7 @@ data class Paciente(
     val Id_paciente: String = "", // PK
     val Id_Usuario: String = "", // FK a Usuario
     val nombre: String = "",
-    val apellidos: String = "",
+    val apellido: String = "",
     val email: String = "",
     val telefono: String = "",
     val dni: String = "",

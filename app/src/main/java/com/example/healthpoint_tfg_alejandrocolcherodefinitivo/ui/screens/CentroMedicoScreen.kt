@@ -19,14 +19,17 @@ import androidx.compose.ui.Modifier
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CentroMedicoScreen (
-    idCentro: String,
-    onBack: () -> Unit
+    idCentro: String, // identificador único del centro médico a mostrar.
+    onBack: () -> Unit // función para volver a la pantalla anterior.
 ) {
+    // Scaffold: Proporciona la estructura básica (barra superior, cuerpo, etc.).
     Scaffold(
         topBar = {
+            // Barra superior de la aplicación (TopAppBar).
             TopAppBar(
                 title = { Text("Centro Médico") } ,
                 navigationIcon = {
+                    // Boton con icono para volver hacia atrás
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
@@ -34,10 +37,13 @@ fun CentroMedicoScreen (
             )
         }
     ) { padding ->
+        // Contenido Principal (Body):
         Column(
+            // aplicamos el padding del Scaffold para que el contenido no se solape con la barra superior
             Modifier
                 .padding(padding)
                 .fillMaxSize(),
+            // centramos el contenido horizontal y verticalmente
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ){

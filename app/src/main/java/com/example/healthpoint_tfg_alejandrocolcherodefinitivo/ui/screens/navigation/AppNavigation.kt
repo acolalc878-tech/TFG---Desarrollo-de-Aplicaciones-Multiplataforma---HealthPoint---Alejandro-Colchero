@@ -28,52 +28,63 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.Solici
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens.SolicitudesCitaMedicoScreen
 import com.google.firebase.auth.FirebaseAuth
 
+// Constantes de Argumentos
+const val ARG_ID_PACIENTE = "idPaciente"
+const val ARG_ID_MEDICO = "idMedico"
+const val ARG_ID_CENTRO = "idCentro"
+
+// Rutas Base sin argumentos
+const val SPLASH_RUTA = "splash_screen"
+const val LOGIN_RUTA = "login_screen"
+const val REGISTER_RUTA = "register_screen"
+
+// Rutas Base con Argumentos
+const val HOME_PACIENTE_BASE = "home_paciente"
+const val VER_PERFIL_PACIENTE_BASE = "perfil_paciente"
+const val CITAS_PACIENTES_BASE = "citas_pacientes"
+const val TRATAMIENTO_PACIENTES_BASE = "tratamiento_pacientes"
+const val SOLICITAR_CITA_BASE = "solicitar_cita"
+const val ESTADO_SOLICITUDES_PACIENTE_BASE = "estado_solicitudes_paciente"
+
+const val HOME_MEDICO_BASE = "home_medico"
+const val GESTIONAR_CITAS_BASE = "gestionar_citas"
+const val GESTIONAR_PACIENTES_BASE = "gestionar_pacientes"
+const val GESTIONAR_TRATAMIENTOS_BASE = "gestionar_tratamientos"
+const val VER_PERFIL_MEDICO_BASE = "perfil_medico"
+const val VER_CENTRO_MEDICO_BASE = "centro_medico"
+const val BUSCAR_MEDICAMENTOS_BASE = "buscar_medicamentos"
+const val SOLICITUDES_MEDICO_BASE = "solicitudes_medico"
+
+// Rutas completas para composable con argumentos
+const val HOME_PACIENTE_RUTA = "$HOME_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
+const val VER_PERFIL_PACIENTE_RUTA = "$VER_PERFIL_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
+const val CITAS_PACIENTES_RUTA = "$CITAS_PACIENTES_BASE/{$ARG_ID_PACIENTE}"
+const val TRATAMIENTO_PACIENTES_RUTA = "$TRATAMIENTO_PACIENTES_BASE/{$ARG_ID_PACIENTE}"
+const val SOLICITAR_CITA_RUTA = "$SOLICITAR_CITA_BASE/{$ARG_ID_PACIENTE}"
+const val ESTADO_SOLICITUDES_PACIENTE_RUTA = "$ESTADO_SOLICITUDES_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
+
+const val HOME_MEDICO_RUTA = "$HOME_MEDICO_BASE/{$ARG_ID_MEDICO}"
+const val GESTIONAR_CITAS_RUTA = "$GESTIONAR_CITAS_BASE/{$ARG_ID_MEDICO}"
+const val GESTIONAR_PACIENTES_RUTA = "$GESTIONAR_PACIENTES_BASE/{$ARG_ID_MEDICO}"
+const val GESTIONAR_TRATAMIENTOS_RUTA = "$GESTIONAR_TRATAMIENTOS_BASE/{$ARG_ID_MEDICO}"
+const val VER_PERFIL_MEDICO_RUTA = "$VER_PERFIL_MEDICO_BASE/{$ARG_ID_MEDICO}"
+const val VER_CENTRO_MEDICO_RUTA = "$VER_CENTRO_MEDICO_BASE/{$ARG_ID_CENTRO}"
+const val BUSCAR_MEDICAMENTOS_RUTA = "$BUSCAR_MEDICAMENTOS_BASE/{$ARG_ID_MEDICO}"
+const val SOLICITUDES_MEDICO_RUTA = "$SOLICITUDES_MEDICO_BASE/{$ARG_ID_MEDICO}"
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
+
     val navController = rememberNavController()
 
-    // Argumentos
-    val ARG_ID_PACIENTE = "idPaciente"
-    val ARG_ID_MEDICO = "idMedico"
-    val ARG_ID_CENTRO = "idCentro"
+    val pacienteNavArguments = listOf(navArgument(ARG_ID_PACIENTE) { type = NavType.StringType })
 
-    // Rutas Base sin argumentos
-    val SPLASH_RUTA = "splash_screen"
-    val LOGIN_RUTA = "login_screen"
-    val REGISTER_RUTA = "register_screen"
-    val HOME_PACIENTE_BASE = "home_paciente"
-    val HOME_MEDICO_BASE = "home_medico"
-    val VER_PERFIL_PACIENTE_BASE = "perfil_paciente"
-    val CITAS_PACIENTES_BASE = "citas_pacientes"
-    val TRATAMIENTO_PACIENTES_BASE = "tratamiento_pacientes"
-    val SOLICITAR_CITA_BASE = "solicitar_cita"
-    val ESTADO_SOLICITUDES_PACIENTE_BASE = "estado_solicitudes_paciente"
-
-    val GESTIONAR_CITAS_BASE = "gestionar_citas"
-    val GESTIONAR_PACIENTES_BASE = "gestionar_pacientes"
-    val GESTIONAR_TRATAMIENTOS_BASE = "gestionar_tratamientos"
-    val VER_PERFIL_MEDICO_BASE = "perfil_medico"
-    val VER_CENTRO_MEDICO_BASE = "centro_medico"
-    val BUSCAR_MEDICAMENTOS_BASE = "buscar_medicamentos"
-    val SOLICITUDES_MEDICO_BASE = "solicitudes_medico"
-
-    // Rutas completas para composable con argumentos
-    val HOME_PACIENTE_RUTA = "$HOME_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
-    val VER_PERFIL_PACIENTE_RUTA = "$VER_PERFIL_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
-    val SOLICITAR_CITA_RUTA = "$SOLICITAR_CITA_BASE/{$ARG_ID_PACIENTE}"
-    val ESTADO_SOLICITUDES_PACIENTE_RUTA = "$ESTADO_SOLICITUDES_PACIENTE_BASE/{$ARG_ID_PACIENTE}"
-
-    val HOME_MEDICO_RUTA = "$HOME_MEDICO_BASE/{$ARG_ID_MEDICO}"
-    val GESTIONAR_CITAS_RUTA = "$GESTIONAR_CITAS_BASE/{$ARG_ID_MEDICO}"
-    val GESTIONAR_PACIENTES_RUTA = "$GESTIONAR_PACIENTES_BASE/{$ARG_ID_MEDICO}"
-    val GESTIONAR_TRATAMIENTOS_RUTA = "$GESTIONAR_TRATAMIENTOS_BASE/{$ARG_ID_MEDICO}"
-    val VER_PERFIL_MEDICO_RUTA = "$VER_PERFIL_MEDICO_BASE/{$ARG_ID_MEDICO}"
-    val VER_CENTRO_MEDICO_RUTA = "$VER_CENTRO_MEDICO_BASE/{$ARG_ID_CENTRO}"
-    val BUSCAR_MEDICAMENTOS_RUTA = "$BUSCAR_MEDICAMENTOS_BASE/{$ARG_ID_MEDICO}"
-    val SOLICITUDES_MEDICO_RUTA = "$SOLICITUDES_MEDICO_BASE/{$ARG_ID_MEDICO}"
+    val medicoNavArguments = listOf(navArgument(ARG_ID_MEDICO) { type = NavType.StringType })
 
     NavHost(navController = navController, startDestination = SPLASH_RUTA) {
+
         // SPLASH SCREEN
         composable(SPLASH_RUTA) {
             SplashScreen(onFinished = {
@@ -138,9 +149,9 @@ fun AppNavigation() {
 
         // HOME MEDICO
         composable(HOME_MEDICO_RUTA) { backStackEntry ->
-            val idMedico = backStackEntry.arguments?.getString("idMedico") ?: ""
+            val idUsuarioAuth = backStackEntry.arguments?.getString("idMedico") ?: ""
             HomeMedicoScreen(
-                idUsuario = idMedico,
+                idUsuario = idUsuarioAuth,
                 viewModel = viewModel(),
                 onLogout = {
                     FirebaseAuth.getInstance().signOut()
@@ -148,18 +159,23 @@ fun AppNavigation() {
                         popUpTo(HOME_MEDICO_RUTA) { inclusive = true }
                     }
                 },
-                onGestionarPacientes = { navController.navigate("$GESTIONAR_PACIENTES_BASE/$idMedico") },
-                onGestionarCitas = { navController.navigate("$GESTIONAR_CITAS_BASE/$idMedico") },
-                onGestionarTratamientos = { navController.navigate("$GESTIONAR_TRATAMIENTOS_BASE/$idMedico") },
-                onVerPerfil = { navController.navigate("$VER_PERFIL_MEDICO_BASE/$idMedico") },
-                onBuscarMedicamentos = {navController.navigate("$BUSCAR_MEDICAMENTOS_BASE/$idMedico") },
-                onGestionarSolicitudes = { navController.navigate("$SOLICITUDES_MEDICO_BASE/$idMedico")}
+                onGestionarPacientes = { navController.navigate("$GESTIONAR_PACIENTES_BASE/$idUsuarioAuth") },
+                onGestionarCitas = { navController.navigate("$GESTIONAR_CITAS_BASE/$idUsuarioAuth") },
+                onGestionarTratamientos = { navController.navigate("$GESTIONAR_TRATAMIENTOS_BASE/$idUsuarioAuth") },
+                onVerPerfil = { navController.navigate("$VER_PERFIL_MEDICO_BASE/$idUsuarioAuth") },
+                onBuscarMedicamentos = {navController.navigate("$BUSCAR_MEDICAMENTOS_BASE/$idUsuarioAuth") },
+                onGestionarSolicitudes = { idMedicoNormalizado ->
+                    navController.navigate("$SOLICITUDES_MEDICO_BASE/$idMedicoNormalizado")
+                }
             )
         }
 
         // CITA PACIENTES
-        composable("citas_pacientes/{idPaciente}") {back ->
-            val idPaciente = back.arguments?.getString("idPaciente") ?: ""
+        composable(
+            route = CITAS_PACIENTES_RUTA,
+            arguments = pacienteNavArguments
+            ) {backStackEntry ->
+            val idPaciente = backStackEntry.arguments?.getString(ARG_ID_PACIENTE) ?: ""
             CitasPacienteScreen(
                 idPaciente = idPaciente,
                 onBack = {
@@ -167,8 +183,10 @@ fun AppNavigation() {
         }
 
         // GESTIONAR TRATAMIENTOS
-        composable("$GESTIONAR_TRATAMIENTOS_RUTA/{idMedico}") {back ->
-            val idMedico = back.arguments?.getString("idMedico") ?:""
+        composable(
+            route = GESTIONAR_TRATAMIENTOS_RUTA,
+            arguments = medicoNavArguments) { backStackEntry ->
+            val idMedico = backStackEntry.arguments?.getString(ARG_ID_MEDICO) ?:""
             GestionarTratamientosScreen(
                 idMedico = idMedico,
                 onBack = {navController.popBackStack()}
@@ -176,8 +194,10 @@ fun AppNavigation() {
         }
 
         // TRATAMIENTO PACIENTES
-        composable("tratamiento_pacientes/{idPaciente}") { back ->
-            val idPaciente = back.arguments?.getString("idPaciente") ?:""
+        composable(
+            route = TRATAMIENTO_PACIENTES_RUTA,
+            arguments = pacienteNavArguments) { backStackEntry ->
+            val idPaciente = backStackEntry.arguments?.getString(ARG_ID_PACIENTE) ?: ""
             TratamientoPacienteScreen(
                 idPaciente = idPaciente,
                 onBack = {navController.popBackStack()}
@@ -185,8 +205,10 @@ fun AppNavigation() {
         }
 
         // GESTIONAR CITAS PACIENTES
-        composable("$GESTIONAR_CITAS_RUTA/{idMedico}") { back ->
-            val idMedico = back.arguments?.getString("idMedico") ?: ""
+        composable(
+            route = GESTIONAR_CITAS_RUTA,
+            arguments = medicoNavArguments) { backStackEntry ->
+            val idMedico = backStackEntry.arguments?.getString(ARG_ID_MEDICO) ?: ""
             GestionarCitasScreen(
                 idMedico = idMedico,
                 onBack = { navController.popBackStack() }
@@ -194,31 +216,41 @@ fun AppNavigation() {
         }
 
         // GESTIONAR PACIENTES
-        composable("$GESTIONAR_PACIENTES_RUTA/{idMedico}") { back ->
-            val idMedico = back.arguments?.getString("idMedico") ?: ""
+        composable(
+            route = GESTIONAR_PACIENTES_RUTA,
+            arguments = medicoNavArguments) { backStackEntry ->
+            val idPaciente = backStackEntry.arguments?.getString(ARG_ID_PACIENTE) ?:""
             GestionarPacientesScreen(
+                idPaciente = idPaciente,
                 onBack = { navController.popBackStack() })
         }
 
         // VER EL PERFIL DEL MEDICO
-        composable("$VER_PERFIL_MEDICO_RUTA/{idMedico}") { back ->
-            val idMedico = back.arguments?.getString("idMedico") ?: ""
+        composable(
+            route = VER_PERFIL_MEDICO_RUTA,
+            arguments = medicoNavArguments) { backStackEntry ->
+            val idMedico = backStackEntry.arguments?.getString(ARG_ID_MEDICO) ?: ""
             PerfilMedicoScreen(
                 idMedico = idMedico,
                 onBack = { navController.popBackStack() })
         }
 
         // VER EL CENTRO MEDICO
-        composable("$VER_CENTRO_MEDICO_RUTA/{idCentro}") { back ->
-            val idCentro = back.arguments?.getString("idCentro") ?: ""
+        composable(
+            route = VER_CENTRO_MEDICO_RUTA,
+            arguments = listOf(navArgument(ARG_ID_CENTRO) { type = NavType.StringType })
+        ){ backStackEntry ->
+            val idCentro = backStackEntry.arguments?.getString(ARG_ID_CENTRO) ?: ""
             CentroMedicoScreen(
                 idCentro,
                 onBack = { navController.popBackStack() })
         }
 
         // BUSCAR MEDICAMENTOS
-        composable("$BUSCAR_MEDICAMENTOS_RUTA/{idMedico}") { back ->
-            val idMedico = back.arguments?.getString("idMedico") ?: ""
+        composable(
+            route = BUSCAR_MEDICAMENTOS_RUTA,
+            arguments = medicoNavArguments) { backStackEntry ->
+            val idMedico = backStackEntry.arguments?.getString(ARG_ID_MEDICO) ?: ""
             BuscarMedicamentosScreen(
                 onBack = { navController.popBackStack() })
         }
@@ -252,6 +284,7 @@ fun AppNavigation() {
             )
         }
 
+        // SOLICITUDES DEL PACIENTE
         composable(
             route = ESTADO_SOLICITUDES_PACIENTE_RUTA,
             arguments = listOf(navArgument(ARG_ID_PACIENTE) { type = NavType.StringType })

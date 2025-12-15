@@ -1,9 +1,11 @@
 package com.example.healthpoint_tfg_alejandrocolcherodefinitivo.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -24,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,27 +46,31 @@ import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.Gestion
 fun EstadoSolicitudesPacienteScreen(
     idPaciente: String,
     onBack: () -> Unit,
-    viewModel: GestionCitasViewModel = viewModel()
+    viewModel: GestionCitasViewModel = viewModel(),
 ) {
     val citas by viewModel.citas.collectAsState()
     val loading by viewModel.loading.collectAsState()
+
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(idPaciente) {
         viewModel.cargarCitasUsuario(idPaciente)
     }
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC),
         topBar = {
             TopAppBar(
-                title = {Text("Estado de mis solicitudes")},
+                title = {Text("Estado de mis solicitudes", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
         }
-    ) { padding ->
+    ){ padding ->
         Column(
             Modifier
                 .padding(padding)
@@ -103,50 +111,119 @@ fun EstadoSolicitudesPacienteScreen(
 // Card que muestra el resultado de una solicitud para el paciente
 @Composable
 fun SolicitudPacienteCard(cita: Cita) {
-    val (estadoTexto, estadoColor) = when (cita.estado.uppercase()) {
-        "PENDIENTE" -> Pair("Pendiente de Revision", Color(0xFFFFA726))
-        "ACEPTADA" -> Pair("Solicitud Aprobada", Color(0xFF4CAF50))
-        "FINALIZADA" -> Pair("Solicitud Rechazada", MaterialTheme.colorScheme.error)
-        else -> Pair(cita.estado, MaterialTheme.colorScheme.onSurface)
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val errorColor = MaterialTheme.colorScheme.error
+
+    val (estadoTexto, estadoColor, containerColor) = when (cita.estado.uppercase()) {
+        "PENDIENTE" -> Triple("Pendiente de Revisión", Color(0xFFFFA726), Color(0xFFFFA726).copy(alpha = 0.1f))
+        "ACEPTADA" -> Triple("Solicitud Aprobada", Color(0xFF4CAF50), Color(0xFF4CAF50).copy(alpha = 0.1f))
+        "RECHAZADA", "FINALIZADA" -> Triple("Solicitud Rechazada", errorColor, errorColor.copy(alpha = 0.1f))
+        else -> Triple(cita.estado, onSurfaceColor, onSurfaceColor.copy(alpha = 0.05f))
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(20.dp)) {
 
-            // Estado
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = estadoTexto,
+                    color = estadoColor,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier
+                        .background(
+                            color = containerColor,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Divider(color = primaryColor.copy(alpha = 0.1f))
+            Spacer(Modifier.height(16.dp))
+
             Text(
-                text = estadoTexto,
-                color = estadoColor,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                "Motivo de la solicitud:",
+                style = MaterialTheme.typography.labelMedium,
+                color = onSurfaceColor.copy(alpha = 0.6f)
+            )
+            Text(
+                cita.motivo,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(top = 4.dp)
             )
 
-            Divider(Modifier.padding(vertical = 8.dp))
+            Spacer(Modifier.height(10.dp))
 
-            // Detalles de la solicitud
-            Text("Motivo de la solicitud", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-            Text(cita.motivo, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold))
-
-            Spacer(Modifier.height(8.dp))
-
-            if(cita.fecha.isNotBlank() && cita.hora.isNotBlank()){
-                Text("Fecha y hora: ${cita.fecha} a las ${cita.hora}", style = MaterialTheme.typography.bodyMedium)
+            if (cita.fecha.isNotBlank() && cita.hora.isNotBlank()) {
+                Text(
+                    "Fecha y hora asignadas:",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = onSurfaceColor.copy(alpha = 0.6f)
+                )
+                Text(
+                    "${cita.fecha} a las ${cita.hora}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = primaryColor,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             } else {
-                Text("Detalles de fecha y hora: Aún no asignados", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text(
+                    "Detalles de fecha y hora:",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = onSurfaceColor.copy(alpha = 0.6f)
+                )
+                Text(
+                    "Aún no asignados",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = onSurfaceColor.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
-            if(cita.Id_centroMedico.isNotBlank()){
-                Text("Centro medico: ${cita.Id_centroMedico}", style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(10.dp))
+
+            if (cita.Id_centroMedico.isNotBlank()) {
+                Text(
+                    "Centro Médico:",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = onSurfaceColor.copy(alpha = 0.6f)
+                )
+                Text(
+                    cita.Id_centroMedico,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
-            if(cita.notasMedico.isNotBlank() && cita.estado.uppercase() != "PENDIENTE") {
-                Spacer(Modifier.height(8.dp))
-                Text("Nota del Médico:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                Text(cita.notasMedico, style = MaterialTheme.typography.bodyMedium)
+            if (cita.notasMedico.isNotBlank() && cita.estado.uppercase() != "PENDIENTE") {
+                Spacer(Modifier.height(16.dp))
+                Divider(color = primaryColor.copy(alpha = 0.1f))
+                Spacer(Modifier.height(16.dp))
+
+                Text(
+                    "Nota del Médico:",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = primaryColor
+                )
+                Text(
+                    cita.notasMedico,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onSurfaceColor.copy(alpha = 0.75f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
     }

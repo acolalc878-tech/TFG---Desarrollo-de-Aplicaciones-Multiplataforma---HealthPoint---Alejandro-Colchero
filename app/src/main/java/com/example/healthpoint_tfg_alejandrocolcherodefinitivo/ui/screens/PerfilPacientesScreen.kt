@@ -15,10 +15,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Usuario
@@ -43,18 +48,25 @@ fun PerfilPacientesScreen(
     val loading by viewModel.loading.collectAsState()
     val mensaje by viewModel.mensajeGuardado.collectAsState()
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+
     LaunchedEffect(Unit) { viewModel.cargarPerfil() }
 
     Scaffold(
+        containerColor = Color(0xFFF7F9FC), // Fondo blanco suave
         topBar = {
-            SmallTopAppBar(
-                title = { Text("Mi perfil") },
+            TopAppBar(
+                title = { Text("Mi perfil", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimaryColor)},
                 navigationIcon = {
-                    IconButton(onClick = { onBack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver"
-                        )
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = onPrimaryColor)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor, // Azul cielo
+                    titleContentColor = onPrimaryColor
+                )
             )
         }
     ) { padding ->

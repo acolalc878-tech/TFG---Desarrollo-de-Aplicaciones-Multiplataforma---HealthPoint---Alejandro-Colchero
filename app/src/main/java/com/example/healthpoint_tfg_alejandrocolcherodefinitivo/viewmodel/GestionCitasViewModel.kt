@@ -22,62 +22,55 @@ class GestionCitasViewModel(
     val loading: StateFlow<Boolean> get() = _loading
 
     private val _mensaje = MutableStateFlow("")
-    private val idMedicoActual = MutableStateFlow("" + "")
+    val mensaje: StateFlow<String> get() = _mensaje
+
+    private var idMedicoActual: String = ""
 
     // Carga en tiempo real
     fun cargarCitasMedico(idMedico: String) {
+        idMedicoActual = idMedico
         _loading.value = true
-        db.collection("Cita").addSnapshotListener { value, error ->
-            if (error != null) {
-                _mensaje.value = "Error al cargar las citas"
+
+        db.collection("Cita")
+            .whereEqualTo("id_medico", idMedico)
+            .whereNotEqualTo("estado", "FINALIZADA")
+            .addSnapshotListener { value, error ->
                 _loading.value = false
-                return@addSnapshotListener
-            }
-
-            if (value != null) {
-                _citas.value = value.documents.mapNotNull { doc ->
-                    val medicoCampo = when {
-                        doc.contains("Id_medico") -> doc.getString("Id_medico")
-                        doc.contains("idMedico") -> doc.getString("idMedico")
-                        doc.contains("id_medico") -> doc.getString("id_medico")
-                        doc.contains("Id_Medico") -> doc.getString("Id_Medico")
-                        else -> null
-                    }
-
-                    if (medicoCampo != idMedico) return@mapNotNull null
-
-                    Cita(
-                        id_cita = doc.id,
-                        id_usuario = doc.getString("Id_usuario") ?: "",
-                        id_medico = medicoCampo ?: "",
-                        Id_centroMedico = doc.getString("Id_centroMedico") ?: "",
-                        fecha = doc.getString("fecha") ?: "",
-                        hora = doc.getString("hora") ?: "",
-                        motivo = doc.getString("motivo") ?: "",
-                        estado = doc.getString("estado") ?: "",
-                        notasMedico = doc.getString("notasMedico") ?: ""
-                    )
+                if (error != null) {
+                    _mensaje.value = "Error al cargar las citas: ${error.message}"
+                    return@addSnapshotListener
                 }
-            }
-            _loading.value = false
-        }
-    }
+
+                        if (value != null) {
+                            _citas.value = value.documents.mapNotNull { doc ->
+                                doc.toObject(Cita::class.java)?.copy(id_cita = doc.id)
+                            }
+                        }
+                    }
+                }
 
     fun cargarCitasUsuario(idPaciente: String) {
+        _loading.value = true
+        val idPacienteNormalizado = idPaciente.lowercase()
+
         db.collection("SolicitudCita")
-            .whereEqualTo("id_usuario", idPaciente)
-            .addSnapshotListener{ snapshot, e ->
-                if(e != null) {
+            .whereEqualTo("id_usuario", idPacienteNormalizado)
+            .addSnapshotListener { snapshot, e ->
+
+                _loading.value = false
+                if (e != null) {
                     return@addSnapshotListener
                 }
 
                 val citasActualizadas = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(Cita::class.java)
+                    doc.toObject(Cita::class.java)?.copy(id_cita = doc.id)
                 } ?: emptyList()
 
                 _citas.value = citasActualizadas
             }
     }
+
+
 
     // Crear cita
     fun crearCita(cita: Cita) {
@@ -110,7 +103,7 @@ class GestionCitasViewModel(
             try {
                 citaRepository.finalizarCita(citaId)
                 // Recargar la lista de citas para que la interfaz se actualice
-                cargarCitasMedico(idMedicoActual.value)
+                cargarCitasMedico(idMedicoActual)
             } catch (e: Exception) {
                 println("Error al finalizar la cita $citaId: ${e.message}")
             }

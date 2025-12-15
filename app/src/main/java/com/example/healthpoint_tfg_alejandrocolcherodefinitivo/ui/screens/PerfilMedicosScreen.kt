@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.CentroMedicoViewModel
@@ -49,6 +52,10 @@ fun PerfilMedicoScreen(
     onBack:() -> Unit,
     viewModel: CentroMedicoViewModel = viewModel()
 ) {
+
+    LaunchedEffect(idMedico) {
+        viewModel.cargarMedico(idMedico)
+    }
 
     // Estados
     val medico by viewModel.medico.collectAsState()
@@ -71,6 +78,8 @@ fun PerfilMedicoScreen(
     // Control del desplegable de los centros medicos
     var idCentroSeleccionado by remember { mutableStateOf("") }
     var centroAbierto by remember { mutableStateOf(false) }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     // Efectosy sincronizacion
     LaunchedEffect(idMedico) {
@@ -118,18 +127,19 @@ fun PerfilMedicoScreen(
     } ?: false
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState)},
+        containerColor = Color(0xFFF7F9FC),
         topBar = {
             TopAppBar(
-                title = { Text("Perfil y centro del médico") } ,
+                title = { Text("Perfil y centro del médico", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
         }
-    ) { padding ->
+    ){ padding ->
         Column(
             modifier = Modifier
                 .padding(padding)

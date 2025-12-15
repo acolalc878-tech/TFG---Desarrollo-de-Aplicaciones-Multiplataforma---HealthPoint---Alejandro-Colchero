@@ -6,29 +6,39 @@ import kotlinx.coroutines.tasks.await
 
 class SolicitudCitaRepository {
 
+    // Instancia de Firestore
     private val db = FirebaseFirestore.getInstance()
+    // Instancia de la coleccion SolicitudCita para llamadas sencillas
     private val solicitudCita = db.collection("SolicitudCita")
 
-    suspend fun obtenerSolicitudesPorMedico(idMedico: String): List<SolicitudCita> {
-       try{
-           val snapshot = solicitudCita
-               .whereEqualTo("id_medico", idMedico)
-               .whereEqualTo("estado", "PENDIENTE")
-               .get().await()
+    // Funcion que va a recuperar las solicitudes PENDIENTES para cada medico concretado en esa solicitud
+    suspend fun obtenerSolicitudesPorMedico(idMedicoNormalizado: String): List<SolicitudCita> {
+        try{
+            // Consulta con filtros: hacemos un filtro por el ID del medico (ya normalizado) y el estado como PENDIENTE
+            val snapshot = db.collection("SolicitudCita")
+                .whereEqualTo("id_medico", idMedicoNormalizado)
+                .whereEqualTo("estado", "PENDIENTE")
+                .get().await() // Esperamos respuesta de la base de datos
 
-          return snapshot.documents.mapNotNull { doc ->
-              doc.toObject(SolicitudCita::class.java)?.copy(Id_solicitud = doc.id)
-          }
+            // Mapeo y asignacion del ID
+            return snapshot.documents.mapNotNull { doc ->
+                val solicitud = doc.toObject(SolicitudCita::class.java)
 
-       } catch (e: Exception){
-           println("Error al obtener solicitudes para el médico $idMedico: ${e.message}")
-           return emptyList()
-       }
+                // Asignamos el ID del documento de Firestore al campo del modelo de datos en Kotlin
+                solicitud?.copy(id_solicitud = doc.id)
+            }
+
+        } catch (e: Exception){
+            return emptyList() // Lista vacia en caso de error
+        }
     }
 
+    // Funcion que modifica el estado de la solicitud a "ACEPTADA"
     suspend fun aceptarSolicitud(solicitud: SolicitudCita) {
         try{
-            solicitudCita.document(solicitud.Id_solicitud)
+            // Accedemos al documento usando el ID de la solicitud
+            solicitudCita.document(solicitud.id_solicitud)
+                // Actualizamos el campo del estado
                 .update("estado", "ACEPTADA")
                 .await()
         } catch (e: Exception){
@@ -36,9 +46,12 @@ class SolicitudCitaRepository {
         }
     }
 
+    // Funcion que modifica el estado de la solicitud a "RECHAZADA"
     suspend fun rechazarSolicitud(solicitud: SolicitudCita) {
         try{
-            solicitudCita.document(solicitud.Id_solicitud)
+            // Accedemos al documento usando el ID de la solicitud
+            solicitudCita.document(solicitud.id_solicitud)
+                // Actualizamos el campo del estado
                 .update("estado", "RECHAZADA")
                 .await()
         } catch (e: Exception){
@@ -46,9 +59,10 @@ class SolicitudCitaRepository {
         }
     }
 
+    // Funcion que crea o sobrescribe un documento de solicitud en la coleccion SolicitudCita
     suspend fun enviarSolicitud(solicitud: SolicitudCita) {
         try{
-            solicitudCita.document(solicitud.Id_solicitud)
+            solicitudCita.document(solicitud.id_solicitud)
                 .set(solicitud)
                 .await()
         } catch (e: Exception){

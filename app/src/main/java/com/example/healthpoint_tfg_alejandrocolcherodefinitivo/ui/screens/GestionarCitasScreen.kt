@@ -6,6 +6,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Cita
@@ -28,19 +30,30 @@ fun GestionarCitasScreen(
 
     val listaPacientes by comunesViewModel.pacientes.collectAsState()
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+
     LaunchedEffect(Unit) {
         viewModel.cargarCitasMedico(idMedico)
         comunesViewModel.cargarTodosLosPacientes()
     }
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Gestión de citas") }, navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
-            }
-        })
-    }
-
+    Scaffold(
+        containerColor = Color(0xFFF7F9FC), // Fondo blanco suave
+        topBar = {
+            TopAppBar(
+            title = { Text("Gestión de citas", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimaryColor)},
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = onPrimaryColor)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = primaryColor, // Azul cielo
+                    titleContentColor = onPrimaryColor
+                )
+            )
+        }
     ) { padding ->
 
         Column(
@@ -145,8 +158,8 @@ fun CitasCardScreen(
                         modifier = Modifier.weight(1f),
                         onClick = onFinalizar,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onTertiary
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
                         )
                     ) {
                         Text("Finalizar")

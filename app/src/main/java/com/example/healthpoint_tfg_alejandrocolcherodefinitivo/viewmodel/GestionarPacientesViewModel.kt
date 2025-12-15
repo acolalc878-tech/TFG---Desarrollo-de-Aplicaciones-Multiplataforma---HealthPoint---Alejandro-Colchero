@@ -38,7 +38,7 @@ class GestionarPacientesViewModel : ViewModel() {
                         Paciente(
                             Id_paciente = doc.id,
                             nombre = nombre,
-                            apellidos = doc.getString("apellidos") ?: "",
+                            apellido = doc.getString("apellido") ?: "",
                             email = doc.getString("email") ?: "",
                             telefono = doc.getString("telefono") ?: "",
                             dni = doc.getString("dni") ?: "",
