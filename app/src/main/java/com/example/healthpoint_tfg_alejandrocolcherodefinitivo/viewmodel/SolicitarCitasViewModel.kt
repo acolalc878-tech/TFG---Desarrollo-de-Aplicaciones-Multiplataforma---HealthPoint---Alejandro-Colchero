@@ -93,7 +93,7 @@ class SolicitarCitasViewModel(
                 val idSolicitudGenerada = UUID.randomUUID().toString()
                 val nuevaSolicitud = SolicitudCita(
                     id_solicitud = idSolicitudGenerada,
-                    id_usuario = idPaciente,
+                    id_usuario = idPaciente.lowercase(),
                     id_medico = medico.Id_medico.lowercase(),
                     especialidad = medico.especialidad,
                     motivo = motivo,

@@ -85,9 +85,6 @@ class RegistrerScreenViewModel: ViewModel() {
                         "nombre" to nombre,
                         "apellido" to apellidos,
                         "Id_usuario" to authUID,
-                        "especialidad" to especialidad,
-                        "numColegiado" to numColegiado,
-                        "horario" to horario
                     )
                     db.collection("Paciente").document(authUID).set(paciente).await()
                 }

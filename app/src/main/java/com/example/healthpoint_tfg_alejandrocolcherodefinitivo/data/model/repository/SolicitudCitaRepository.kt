@@ -69,4 +69,19 @@ class SolicitudCitaRepository {
             throw e
         }
     }
+
+    suspend fun obtenerSolicitudesPorPaciente(idPaciente: String): List<SolicitudCita> {
+        return try {
+            val snapshot = db.collection("SolicitudCita")
+                .whereEqualTo("id_usuario", idPaciente) // Filtra por el ID del usuario/paciente
+                .get().await()
+
+            snapshot.documents.mapNotNull { doc ->
+                val solicitud = doc.toObject(SolicitudCita::class.java)
+                solicitud?.copy(id_solicitud = doc.id)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

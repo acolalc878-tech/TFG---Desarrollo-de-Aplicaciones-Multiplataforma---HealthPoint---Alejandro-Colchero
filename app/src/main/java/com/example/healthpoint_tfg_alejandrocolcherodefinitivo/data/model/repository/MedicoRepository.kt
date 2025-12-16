@@ -16,7 +16,7 @@ class MedicoRepository {
     suspend fun obtenerMedicoPorId(idMedico: String): Medico? {
         if(idMedico.isBlank()) return null // Retornamos null si esta vacío el ID
 
-        return try {
+        try {
             // Acceso directo al id, esperando resultados
             val snapshot = medicos.document(idMedico).get().await()
 
@@ -40,7 +40,7 @@ class MedicoRepository {
 
         if(especialidad.isBlank()) return emptyList() // Si no hay especialidad devuelve una lista vacia
 
-        return try{
+        try{
             // Consulta con filtro: por el campo de especialidad
             val snapshot = db.collection("Medico")
                 .whereEqualTo("especialidad", especialidad)
@@ -64,7 +64,7 @@ class MedicoRepository {
 
     // Funcion que devuelve una lista con todas las especialidades en la coleccion Medico
     suspend fun obtenerTodasLasEspecialidades(): List<String> {
-        return try {
+        try {
             // Recupera toda la colección (advertencia: puede ser ineficiente en colecciones grandes).
             val snapshot = db.collection("Medico")
                 .get()

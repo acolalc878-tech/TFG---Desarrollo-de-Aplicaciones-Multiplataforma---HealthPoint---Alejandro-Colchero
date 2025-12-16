@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
@@ -48,7 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.data.model.Medico
 import com.example.healthpoint_tfg_alejandrocolcherodefinitivo.viewmodel.SolicitarCitasViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -80,7 +77,7 @@ fun SolicitudCitaScreen(
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
 
     // Cargamos especialidades al incio
-    LaunchedEffect(Unit) {
+    LaunchedEffect(especialidades) {
         viewModel.cargarEspecialidades()
     }
 
